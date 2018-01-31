@@ -2,5 +2,8 @@
 name = "sawblade"
 version = "0.1.0"
 authors = ["Jackson Lewis <st.japa6@gmail.com>"]
+description = "A modular, fast, customizable game engine that allows developers to use both Rust and Python"
 
 [dependencies]
+json = "0.11.13"
+sdl2 = "0.31.0"
