@@ -17,8 +17,11 @@ impl GameState {
         }
     }
 
-    pub fn get_buf(&self) -> &Vec<Vec<Pixel>> { // Fetches buffer
-        &self.screen_buf
+    pub fn get_screen_buffer(&mut self) -> &mut Vec<Vec<Pixel>> { // Fetches buffer
+        &mut self.screen_buf
+    }
+    pub fn set_screen_buffer(&mut self, new_buffer: Vec<Vec<Pixel>>) {
+        self.screen_buf = new_buffer;
     }
     //TODO: Add configuration input function
     //TODO: Add more updating functions

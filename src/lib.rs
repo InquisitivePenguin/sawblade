@@ -1,5 +1,5 @@
 // Top level file for Sawblade Library
 // This should only include tests and linked modules
-mod game;
-mod graphics;
-mod ui;
+pub mod game;
+pub mod graphics;
+pub mod ui;
