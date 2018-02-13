@@ -1,22 +1,33 @@
 use game::state::GameState;
 use graphics::window::Window;
 use graphics::pixel::Pixel;
+use game::scene::Scene;
 extern crate rand;
 use self::rand::StdRng;
 use self::rand::Rng;
+extern crate sdl2;
+use self::sdl2::render::TextureCreator;
+use self::sdl2::render::Texture;
 
 pub struct Game {
     state: GameState,
-    out: Window
+    out: Window,
+    scenes: Vec<Box<Scene>>
 }
 
 impl Game {
     pub fn new(title:String, res: (u32,u32)) -> Game {
         Game {
             out: Window::new(res,title),
-            state: GameState::new()
+            state: GameState::new(),
+            scenes: vec![]
         }
     }
+
+    pub fn get_state(& mut self) -> &mut GameState {
+        & mut (self.state)
+    }
+
     /*
         Testing functions go here
     */
@@ -33,10 +44,21 @@ impl Game {
             }
             pixels.push(tmp);
         }
-        self.state.set_screen_buffer(pixels);
+        self.state.set_raw_screen_buffer(pixels);
     }
 
     pub fn test_render (&mut self) {
-        self.out.draw(self.state.get_screen_buffer());
+        self.out.draw(self.state.get_raw_screen_buffer());
+    }
+
+    pub fn test_window_open (&self) -> bool {
+        self.out.is_open()
+    }
+}
+
+impl Drop for Game {
+    fn drop(&mut self) {
+        println!("Hello");
+        self.out.close();
     }
 }

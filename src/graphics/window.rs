@@ -1,17 +1,19 @@
 extern crate sdl2;
 use self::sdl2::rect::Point;
 use self::sdl2::pixels::Color;
+use self::sdl2::Sdl;
 use graphics::pixel::Pixel;
 
 pub struct Window {
     title: String,
-    canvas: sdl2::render::Canvas<sdl2::video::Window>
+    canvas: sdl2::render::Canvas<sdl2::video::Window>,
+    context: Sdl
 }
 
 impl Window {
     pub fn new(res: (u32,u32), title: String) -> Window {
         let context = sdl2::init().unwrap();
-        let vid = context.video().unwrap();
+        let vid = (&context).video().unwrap();
         let canvas = vid.window(title.as_str(),
             res.0,
             res.1
@@ -20,6 +22,7 @@ impl Window {
         Window {
             title: title,
             canvas: canvas,
+            context: context
         }
     }
     pub fn is_open(&self) -> bool {
@@ -36,7 +39,7 @@ impl Window {
         self.canvas.present();
     }
 
-    pub fn close(w: Window) {
-        w.canvas; // Capture window and make it go out of scope
+    pub fn close(&mut self) {
+        self.context.sdldrop();
     }
 }
