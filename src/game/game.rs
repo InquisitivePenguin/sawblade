@@ -58,7 +58,6 @@ impl Game {
 
 impl Drop for Game {
     fn drop(&mut self) {
-        println!("Hello");
         self.out.close();
     }
 }
