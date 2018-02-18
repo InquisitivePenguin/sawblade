@@ -20,10 +20,11 @@ impl Window {
         ).position_centered().build().unwrap()
             .into_canvas().build().unwrap();
         Window {
-            title: title,
-            canvas: canvas,
-            context: context
+            title,
+            canvas,
+            context
         }
+
     }
     pub fn is_open(&self) -> bool {
         true
@@ -33,7 +34,7 @@ impl Window {
         for i in pixels {
             for q in i {
                 self.canvas.set_draw_color(Color::RGB(q.rbg.0,q.rbg.1,q.rbg.2));
-                self.canvas.draw_point::<Point>(q.to_sdl_point());
+                self.canvas.draw_point::<Point>(q.to_sdl_point()).expect("Sawblade Error: could not draw to window successfully");
             }
         }
         self.canvas.present();
@@ -41,5 +42,9 @@ impl Window {
 
     pub fn close(&mut self) {
         self.context.sdldrop();
+    }
+
+    pub fn get_canvas(&mut self) -> &mut sdl2::render::Canvas<sdl2::video::Window> {
+        &mut self.canvas
     }
 }

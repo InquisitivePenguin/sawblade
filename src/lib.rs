@@ -10,8 +10,34 @@ mod test {
     struct TestScene {
 
     }
+    /*
     impl game::scene::Scene for TestScene {
 
+    }
+    */
+    struct TestEntity {
+
+    }
+    impl game::gameobject::GameObject for TestEntity {
+        type SceneDelegate = game::scenedelegate::GameSceneDelegate;
+        fn spawn(coords: (u32,u32)) -> TestEntity {
+
+        }
+        fn on_tick(&mut self) {
+
+        }
+        fn on_directional_input(&mut self) {
+
+        }
+        fn on_trigger(&mut self, method: String) {
+
+        }
+        fn get_coords(&self) -> (u32,u32) {
+            (0,0)
+        }
+        fn set_directional_input(&mut self, input: (u32,u32)) {
+
+        }
     }
     // game module
         // Game object
