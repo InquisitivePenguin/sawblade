@@ -1,5 +1,4 @@
 use graphics::pixel::Pixel;
-use graphics::texture::FinalTexture;
 pub struct GameState {
     //cycle_state: CycleState, //TODO: Implement cycle state
     ticks: u64,

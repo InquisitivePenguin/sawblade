@@ -35,12 +35,9 @@ impl Scene for MyScene {
         // Load jumper character
         self.jumper.set_pos(0,0);
         // Place a few blocks to jump on
-        self.blocks.push(Block::new());
-        self.blocks.push(Block::new());
-        self.blocks.push(Block::new());                
-        self.blocks[0].set_pos(50,50);
-        self.blocks[1].set_pos(100,100);
-        self.blocks[2].set_pos(150,150);
+        self.blocks.push(Block::spawn((50,50)));
+        self.blocks.push(Block::spawn((100,100)));
+        self.blocks.push(Block::spawn((150,150)));                
     }
     fn get_scene_entities(&mut self) -> Vec<&mut GameObject> {
         entities = vec![];

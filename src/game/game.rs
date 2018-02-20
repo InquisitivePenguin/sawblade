@@ -1,24 +1,21 @@
 use game::state::GameState;
 use game::graphicalcontext::GraphicalContext;
 use game::scene::Scene;
-use graphics::pixel::Pixel;
 extern crate rand;
 use self::rand::StdRng;
 use self::rand::Rng;
 use self::GameLoopState::*;
+use std::collections::HashMap;
 
 enum GameLoopState {
-    Inactive,
-    CollectingResources,
-    ProcessingSceneTriggers,
-    Rendering,
-    Pausing
+    Continue,
+    Exit,
+    Pause
 }
 pub struct Game {
     state: GameState,
     gcontext: GraphicalContext,
-    //scenes: Vec<Box<Scene>>,
-    game_loop_state: GameLoopState,
+    scenes: HashMap<String, Box<Scene<Input=String>>>,
     // gameresourcemanager: GameResourceManager
 }
 
@@ -27,15 +24,26 @@ impl Game {
         Game {
             gcontext: GraphicalContext::new(title,res),
             state: GameState::new(),
-            //scenes: vec![],
-            game_loop_state: Inactive
+            scenes: HashMap::new(),
         }
     }
 
-    pub fn get_state(& mut self) -> &mut GameState {
+    pub fn load_required_resources() {
+
+    }
+
+    pub fn start() {
+
+    }
+
+    pub fn get_state(&mut self) -> &mut GameState {
         & mut (self.state)
     }
 
+
+    fn game_cycle(&mut self) -> GameLoopState {
+        Continue
+    }
     /*
         Testing functions go here
     */
