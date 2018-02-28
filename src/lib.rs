@@ -12,6 +12,7 @@ mod test {
     use game::state::GameState;
     use game::input::Input;
     use std::cell::Ref;
+    use game::game::Game;
     struct TestScene {
 
     }
@@ -59,6 +60,11 @@ mod test {
         // This function runs one tick of the game and checks if the character in the designated scene is on the right coordinate
         fn can_run_frame_successfully() {
 
+        }
+        #[test]
+        fn game_can_run() {
+            let g = Game::new("Sawblade Test".to_string(), (600,800)).with_blank_scene();
+            g.start();
         }
 
         // GameState object

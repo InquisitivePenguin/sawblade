@@ -81,10 +81,16 @@ impl Game {
 
     pub fn start(mut self) {
         // Load default scene
-        let def_scene = self.scenes.get(
-            &self.default_scene_name.expect("No default scene was provided")
-        ).unwrap();
-        self.state.deref().borrow_mut().set_current_scene(Rc::clone(def_scene));
+        {
+            let def_scene = self.scenes.get(
+                &self.default_scene_name.clone().expect("No default scene was provided")
+            ).unwrap();
+            self.state.deref().borrow_mut().set_current_scene(Rc::clone(def_scene));
+        }
+        println!("{:?}",self.state.deref().borrow().get_current_scene().deref().get_scene_name());
+        loop {
+            (&mut self).game_cycle();
+        }
     }
 
     pub fn get_state(&mut self) -> Rc<RefCell<GameState>> {
