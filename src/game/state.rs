@@ -16,6 +16,9 @@ impl GameState {
     pub fn set_current_scene(&mut self, scene: Rc<Box<Scene>>) {
         self.current_scene = Some(scene);
     }
+    pub fn get_current_scene(&self) -> Rc<Box<Scene>> {
+        self.current_scene.clone().unwrap()
+    }
     pub fn update(&mut self) {
         self.tick += 1;
     }
