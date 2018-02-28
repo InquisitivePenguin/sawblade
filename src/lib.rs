@@ -30,7 +30,7 @@ mod test {
             self.coordinates = coords;
             true
         }
-        fn on_tick(&mut self, state: Ref<GameState>, input: &Input) -> game::gameobject::GameObjectMsg {
+        fn on_tick(&mut self, state: &GameState, input: &Input) -> game::gameobject::GameObjectMsg {
             game::gameobject::GameObjectMsg::NoMsg
         }
         fn get_coordinates(&self) -> (u32,u32) {

@@ -15,7 +15,7 @@ pub trait GameObject {
     /*
     on_tick should be called on the object for each game 'tick' in the scene
     */
-    fn on_tick(&mut self, state: Ref<GameState>, input: &Input) -> GameObjectMsg;
+    fn on_tick(&mut self, state: &GameState, input: &Input) -> GameObjectMsg;
     /*
     These are getter/setter functions for the vars that should be in the derived struct
     */

@@ -33,7 +33,7 @@ pub trait Scene {
         let gs_ref = self.get_game_state();
         for mut entity in self.get_scene_entities().unwrap() {
             let gs_ref = gs_ref.deref().borrow();
-            let msg = entity.on_tick(gs_ref, &input);
+            let msg = entity.on_tick(gs_ref.deref(), &input);
         }
     }
 
