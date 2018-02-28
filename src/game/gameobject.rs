@@ -1,6 +1,7 @@
 use game::state::GameState;
 use game::input::Input;
 use graphics::texture::FinalTexture;
+use std::cell::Ref;
 
 pub enum GameObjectMsg {
     NoMsg,
@@ -14,12 +15,12 @@ pub trait GameObject {
     /*
     on_tick should be called on the object for each game 'tick' in the scene
     */
-    fn on_tick(&mut self, state: &GameState, input: &Input) -> GameObjectMsg;
+    fn on_tick(&mut self, state: Ref<GameState>, input: &Input) -> GameObjectMsg;
     /*
     These are getter/setter functions for the vars that should be in the derived struct
     */
     fn get_coordinates(&self) -> (u32,u32);
     fn get_bounding_box(&self) -> (u32,u32);
     fn get_id(&self) -> u64;
-    fn render(&mut self) -> FinalTexture;
+    fn render(&mut self) -> Option<FinalTexture>;
 }

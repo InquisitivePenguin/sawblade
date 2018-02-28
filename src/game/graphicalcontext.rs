@@ -7,7 +7,7 @@ use graphics::window::Window;
 use std::collections::HashMap;
 
 pub struct GraphicalContext {
-    wind: Window,
+    pub wind: Window,
     texture_generator: TextureCreator<self::sdl2::video::WindowContext>,
     texture_storage: HashMap<String, Texture>
 }

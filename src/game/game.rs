@@ -11,6 +11,8 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::rc::Weak;
 use std::ops::Deref;
+use graphics::pixel::Pixel;
+use std::cell::RefCell;
 
 enum GameLoopState {
     Continue,
@@ -18,7 +20,7 @@ enum GameLoopState {
     Pause
 }
 pub struct Game {
-    state: Option<Rc<GameState> >,
+    state: Rc<RefCell<GameState>>,
     gcontext: GraphicalContext,
     scenes: HashMap<String, Rc<Box<Scene>>>,
     default_scene_name: Option<String>
@@ -26,12 +28,12 @@ pub struct Game {
 }
 
 struct BlankScene {
-    state: Weak<GameState>
+    state: Rc<RefCell<GameState>>
 }
 
 impl Scene for BlankScene {
-    fn new(state: Weak<GameState>) -> BlankScene {
-        let mut new = BlankScene {
+    fn new(state: Rc<RefCell<GameState>>) -> BlankScene {
+        let new = BlankScene {
             state
         };
         new
@@ -42,8 +44,8 @@ impl Scene for BlankScene {
     fn get_scene_name(&self) -> &str {
         "Blank Scene"
     }
-    fn get_game_state(&self)  -> Rc<GameState> {
-        self.state.upgrade().unwrap()
+    fn get_game_state(&self)  -> Rc<RefCell<GameState>> {
+        self.state.clone()
     }
 }
 
@@ -51,7 +53,7 @@ impl Game {
     pub fn new(title:String, res: (u32,u32)) -> Game {
         Game {
             gcontext: GraphicalContext::new(title,res),
-            state: None,
+            state: Rc::new(RefCell::new(GameState::new())),
             scenes: HashMap::new(),
             default_scene_name: None
         }
@@ -60,8 +62,7 @@ impl Game {
     // Modifier functions go here
 
     pub fn with_blank_scene(mut self) -> Game {
-        let state_ref = self.state.clone();
-        let mut blank_scene = BlankScene::new(Rc::downgrade(&state_ref.unwrap()));
+        let mut blank_scene = BlankScene::new(Rc::clone(&self.state));
         let blank_scene_name = blank_scene.get_scene_name().to_string();
         self = self.with_scene(Box::new(blank_scene));
         self.default_scene_name = Some(blank_scene_name);
@@ -83,13 +84,11 @@ impl Game {
         let def_scene = self.scenes.get(
             &self.default_scene_name.expect("No default scene was provided")
         ).unwrap();
-        let mut new_state = GameState::new();
-        new_state.set_current_scene(def_scene.clone());
-        self.state = Some(Rc::new(new_state));
+        self.state.deref().borrow_mut().set_current_scene(Rc::clone(def_scene));
     }
 
-    pub fn get_state(&mut self) -> Rc<GameState> {
-        self.state.clone().unwrap().clone()
+    pub fn get_state(&mut self) -> Rc<RefCell<GameState>> {
+        Rc::clone(&self.state)
     }
 
 
@@ -100,27 +99,7 @@ impl Game {
         Testing functions go here
     */
     #[cfg(test)]
-    // What this does: setup a random pixel array for rendering in testing
-    pub fn test_rand_pixel_populate(&mut self, res: (u32, u32)) {
-        let mut pixels = vec![];
-        let mut rng = StdRng::new().unwrap();
-        for i in 0..res.0 {
-            let mut tmp: Vec<Pixel> = vec![];
-            for q in 0..res.1 {
-                let mut randarr = [0, 0, 0];
-                rng.fill_bytes(&mut randarr);
-                tmp.push(Pixel::new().with_position((i, q)).with_color((randarr[0], randarr[1], randarr[2])));
-            }
-            pixels.push(tmp);
-        }
-        self.state.set_raw_screen_buffer(pixels);
-    }
-    #[cfg(test)]
-    pub fn test_render(&mut self) {
-        self.out.draw(self.state.get_raw_screen_buffer());
-    }
-    #[cfg(test)]
     pub fn test_window_open(&self) -> bool {
-        self.out.is_open()
+        self.gcontext.wind.is_open()
     }
 }

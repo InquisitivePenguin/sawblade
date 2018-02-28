@@ -7,6 +7,7 @@ use std::marker::Sized;
 use std::rc::Weak;
 use std::rc::Rc;
 use std::ops::Deref;
+use std::cell::RefCell;
 
 pub enum SceneMsg {
     Continue,
@@ -14,7 +15,7 @@ pub enum SceneMsg {
     Pause
 }
 pub trait Scene {
-    fn new(state: Weak<GameState>) -> Self where Self : Sized;
+    fn new(state: Rc<RefCell<GameState>>) -> Self where Self : Sized;
 
     fn get_final_textures(&mut self) -> Option<Vec<FinalTexture>> {None}
 
@@ -29,12 +30,14 @@ pub trait Scene {
     fn on_tick(&mut self, input: Input) -> SceneMsg {SceneMsg::Continue}
 
     fn on_tick_internal(&mut self, input: Input) {
+        let gs_ref = self.get_game_state();
         for mut entity in self.get_scene_entities().unwrap() {
-            let msg = entity.on_tick(self.get_game_state().deref(), &input);
+            let gs_ref = gs_ref.deref().borrow();
+            let msg = entity.on_tick(gs_ref, &input);
         }
     }
 
     fn on_exit(&mut self) {}
 
-    fn get_game_state(&self) -> Rc<GameState>;
+    fn get_game_state(&self) -> Rc<RefCell<GameState>>;
 }

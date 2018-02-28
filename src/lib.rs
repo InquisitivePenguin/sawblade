@@ -7,6 +7,11 @@ pub mod ui;
 #[cfg(test)]
 mod test {
     use self::super::*;
+    use graphics::texture::FinalTexture;
+    use graphics::pixel::Pixel;
+    use game::state::GameState;
+    use game::input::Input;
+    use std::cell::Ref;
     struct TestScene {
 
     }
@@ -16,28 +21,24 @@ mod test {
     }
     */
     struct TestEntity {
-
+        coordinates: (u32,u32),
+        id: u64
     }
     impl game::gameobject::GameObject for TestEntity {
-        type SceneDelegate = game::scenedelegate::GameSceneDelegate;
-        fn spawn(coords: (u32,u32)) -> TestEntity {
-
+        fn spawn(&mut self, coords: (u32,u32), id: u64) -> bool {
+            self.id = id;
+            self.coordinates = coords;
+            true
         }
-        fn on_tick(&mut self) {
-
+        fn on_tick(&mut self, state: Ref<GameState>, input: &Input) -> game::gameobject::GameObjectMsg {
+            game::gameobject::GameObjectMsg::NoMsg
         }
-        fn on_directional_input(&mut self) {
-
+        fn get_coordinates(&self) -> (u32,u32) {
+            self.coordinates
         }
-        fn on_trigger(&mut self, method: String) {
-
-        }
-        fn get_coords(&self) -> (u32,u32) {
-            (0,0)
-        }
-        fn set_directional_input(&mut self, input: (u32,u32)) {
-
-        }
+        fn get_bounding_box(&self) -> (u32,u32) {(0,0)}
+        fn get_id(&self) -> u64 {self.id}
+        fn render(&mut self) -> Option<FinalTexture> {None}
     }
     // game module
         // Game object
@@ -45,12 +46,6 @@ mod test {
         fn game_creates_window_successfully() {
             let g = game::game::Game::new("Testing".to_string(),(50,50));
             assert!(g.test_window_open())
-        }
-        #[test]
-        fn game_successfully_populates_buffer() {
-            let mut g = game::game::Game::new("Testing".to_string(),(50,50));
-            g.test_rand_pixel_populate((50,50));
-            assert_ne!(g.get_state().get_raw_screen_buffer()[49][49].rbg.0, 0)
         }
         #[test]
         fn game_can_load_scene() {
