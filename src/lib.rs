@@ -7,11 +7,39 @@ pub mod ui;
 #[cfg(test)]
 mod test {
     use self::super::*;
+    use graphics::texture::FinalTexture;
+    use graphics::pixel::Pixel;
+    use game::state::GameState;
+    use game::input::Input;
+    use std::cell::Ref;
+    use game::game::Game;
     struct TestScene {
 
     }
+    /*
     impl game::scene::Scene for TestScene {
 
+    }
+    */
+    struct TestEntity {
+        coordinates: (u32,u32),
+        id: u64
+    }
+    impl game::gameobject::GameObject for TestEntity {
+        fn spawn(&mut self, coords: (u32,u32), id: u64) -> bool {
+            self.id = id;
+            self.coordinates = coords;
+            true
+        }
+        fn on_tick(&mut self, state: &GameState, input: &Input) -> game::gameobject::GameObjectMsg {
+            game::gameobject::GameObjectMsg::NoMsg
+        }
+        fn get_coordinates(&self) -> (u32,u32) {
+            self.coordinates
+        }
+        fn get_bounding_box(&self) -> (u32,u32) {(0,0)}
+        fn get_id(&self) -> u64 {self.id}
+        fn render(&mut self) -> Option<FinalTexture> {None}
     }
     // game module
         // Game object
@@ -19,12 +47,6 @@ mod test {
         fn game_creates_window_successfully() {
             let g = game::game::Game::new("Testing".to_string(),(50,50));
             assert!(g.test_window_open())
-        }
-        #[test]
-        fn game_successfully_populates_buffer() {
-            let mut g = game::game::Game::new("Testing".to_string(),(50,50));
-            g.test_rand_pixel_populate((50,50));
-            assert_ne!(g.get_state().get_raw_screen_buffer()[49][49].rbg.0, 0)
         }
         #[test]
         fn game_can_load_scene() {
@@ -38,6 +60,11 @@ mod test {
         // This function runs one tick of the game and checks if the character in the designated scene is on the right coordinate
         fn can_run_frame_successfully() {
 
+        }
+        #[test]
+        fn game_can_run() {
+            let g = Game::new("Sawblade Test".to_string(), (600,800)).with_blank_scene();
+            g.start();
         }
 
         // GameState object

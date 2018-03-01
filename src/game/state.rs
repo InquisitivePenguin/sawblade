@@ -1,30 +1,26 @@
 use graphics::pixel::Pixel;
-use graphics::texture::FinalTexture;
+use game::scene::Scene;
+use std::rc::Rc;
 pub struct GameState {
-    //cycle_state: CycleState, //TODO: Implement cycle state
-    ticks: u64,
-    is_outputting: bool,
-    raw_screen_buf: Vec<Vec<Pixel>>
-    
+    tick: u64,
+    current_scene: Option<Rc<Box<Scene>>>,
 }
 
 impl GameState {
-    // Function 'GameState::new'
-    // What it does: creates a blank, fresh GameState
     pub fn new() -> GameState {
         GameState {
-            ticks: 0,
-            is_outputting: false,
-            raw_screen_buf : vec!()
+            tick: 0,
+            current_scene: None
         }
     }
-
-    pub fn get_raw_screen_buffer(&mut self) -> &mut Vec<Vec<Pixel>> { // Fetches buffer
-        &mut self.raw_screen_buf
+    pub fn set_current_scene(&mut self, scene: Rc<Box<Scene>>) {
+        self.current_scene = Some(scene);
     }
-    pub fn set_raw_screen_buffer(&mut self, new_buffer: Vec<Vec<Pixel>>) {
-        self.raw_screen_buf = new_buffer;
+    pub fn get_current_scene(&self) -> Rc<Box<Scene>> {
+        self.current_scene.clone().unwrap()
     }
-    //TODO: Add configuration input function
-    //TODO: Add more updating functions
+    pub fn update(&mut self) {
+        self.tick += 1;
+    }
+    //TODO: Add utility functions
 }
