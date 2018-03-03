@@ -11,20 +11,58 @@ Here is a simple platformer game:
 ```rust
 extern crate sawblade;
 use self::sawblade::Game;
-use self::sawblade::GameState;
+use self::sawblade::GraphicalSettings;
+use self::sawblade::Scene;
+use self::sawblade::GameObject;
 mod jumper;
 mod block;
 mod setup;
+use self::block::Block;
+
+struct MyScene {
+    jumper: self::jumper::JumperCharacter,
+    blocks: Vec<Block>,
+}
+
+impl Scene for MyScene {
+    fn new() -> MyScene {
+        MyScene {
+            jumper: self::jumper::JumperCharacter::new(),
+            blocks: vec![]
+        }
+    }
+    fn on_init(&mut self) {
+        // Load jumper character
+        self.jumper.set_pos(0,0);
+        // Place a few blocks to jump on
+        self.blocks.push(Block::spawn((50,50)));
+        self.blocks.push(Block::spawn((100,100)));
+        self.blocks.push(Block::spawn((150,150)));                
+    }
+    fn get_scene_entities(&mut self) -> Vec<&mut GameObject> {
+        entities = vec![];
+        entities.push(&mut self.jumper);
+        for block in &mut self.blocks {
+            entities.push(block);
+        }
+        entities
+    }
+    fn get_scene_name(&self) -> &str {
+        "MyScene"
+    }
+}
 
 fn main() {
-  let s_game = Game::new().
-  with_render_window("My platformer game", 600, 800)
-  .with_custom_event_loop( |state: &GameState| {
-    let input = Game::collect_input();
-    state.trigger_events(input,GameState::EventTriggerProcess:Hierarchial);
-  } ).with_custom_init(setup::init())
-  .with_components(!vec(block::Block,jumper::Jumper));
-  s_game.load();
+  let window_settings = GraphicalSettings::new()
+  .fullscreen(true);
+  let game_settings = GameSettings::new()
+  .default_scene("MyScene");
+  let s_game = Game::new()
+  .has_window_with_settings("My platformer game", 600, 800)
+  .with_scene(MyScene::new())
+  .with_window_settings(window_settings)
+  .with_game_settings(game_settings);
+  s_game.load_required_resources();
   s_game.start();
 }
 ```
@@ -50,7 +88,7 @@ Here is what we hope to implement on each release:
 
 `0.3`: graphical shaders, basic AI abstraction, higher-level manipulation functions
 
-`0.4`: extensive window manipulation, particle
+`0.4`: extensive window manipulation, particle effects
 
 `0.5`: Multi-threading support
 
