@@ -55,9 +55,7 @@ impl GameBuilder {
         let event_pump = (&context).event_pump().unwrap();
         Game {
             sdl_context: context,
-            world: World {
-                scene_creators: self.scene_funcs
-            },
+            world: World::new(self.scene_funcs, self.def_scene_name.expect("No default scene was provided"), (500,500)), // TODO: Replace with customizable dimensions
             gcontext: graphicalcontext,
             default_scene_name: None,
             event_pump: event_pump,
