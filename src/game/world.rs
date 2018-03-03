@@ -1,7 +1,7 @@
 use game::scene::Scene;
 use std::collections::HashMap;
 pub struct World {
-    scene_creators: HashMap<String, fn()-> Scene>
+    pub scene_creators: HashMap<String, fn()-> Scene>
 }
 
 impl World {

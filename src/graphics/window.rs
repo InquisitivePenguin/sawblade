@@ -3,17 +3,16 @@ use self::sdl2::rect::Point;
 use self::sdl2::pixels::Color;
 use self::sdl2::Sdl;
 use graphics::pixel::Pixel;
+use std::rc::Rc;
 
 pub struct Window {
     title: String,
     canvas: sdl2::render::Canvas<sdl2::video::Window>,
-    context: Sdl
 }
 
 impl Window {
-    pub fn new(res: (u32,u32), title: String) -> Window {
-        let context = sdl2::init().unwrap();
-        let vid = (&context).video().unwrap();
+    pub fn new(context: &Sdl, res: (u32,u32), title: String) -> Window {
+        let vid = (context).video().unwrap();
         let canvas = vid.window(title.as_str(),
             res.0,
             res.1
@@ -21,8 +20,7 @@ impl Window {
             .into_canvas().build().unwrap();
         Window {
             title,
-            canvas,
-            context
+            canvas
         }
 
     }
@@ -46,7 +44,7 @@ impl Window {
     }
 
     pub fn close(&mut self) {
-        self.context.sdldrop();
+        self.canvas.clear();
     }
 
     pub fn get_canvas(&mut self) -> &mut sdl2::render::Canvas<sdl2::video::Window> {
