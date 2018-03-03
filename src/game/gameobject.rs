@@ -1,16 +1,17 @@
-use std::iter::Map;
+use graphics::texture::FinalTexture;
+use std::cell::Ref;
+
 pub trait GameObject {
-    type SceneDelegate;
     /*
-    on_tick should be called on the object for each game 'tick'
+    spawn should be called when creating a new GameObject-based entity. Don't spawn if function returns false
     */
-    fn on_tick(&mut self) -> Self::SceneDelegate;
-    /*
-    on_directional_input is called after on_tick if directional input was identified by the Scene code
-    */
-    fn on_directional_input(&mut self) -> Self::SceneDelegate;
-    /*
-    on_trigger is called after on_directional_input to trigger any code caused by an Event
-    */
-    fn on_trigger(&mut self, method : String) -> Self::SceneDelegate;
+    fn spawn(coordinates: (u32,u32), id: u64) -> Self where Self : Sized;
+    fn get_id(&self) -> u64;
+    fn recv(&mut self, trigger: String) {}
+}
+
+pub trait GameEntity : GameObject {
+    fn get_coordinates(&self) -> (u32,u32);
+    fn get_bounding_box(&self) -> (u32,u32);
+    fn render(&mut self) -> Option<FinalTexture>;
 }

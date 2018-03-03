@@ -3,18 +3,18 @@ use self::sdl2::render::Texture;
 use self::sdl2::render::TextureCreator;
 use std::cell::RefCell;
 // FinalTexture is a single image that represents a raw texture to be rendered to the screen
-pub struct FinalTexture<'a> {
+pub struct FinalTexture {
     scene_coords: (u64,u64),
-    texture: Texture<'a>
+    texture: Texture
 }
 
-impl<'a> FinalTexture<'a> {
-    pub fn new(tc: &TextureCreator<Texture<'a>>, coords: (u64,u64)) {
+impl FinalTexture {
+    pub fn new(tc: &TextureCreator<Texture>, coords: (u64,u64)) {
 
     }
 }
 
-struct GameObjectTexture<'a>{
-    textures: Vec<Texture<'a>>,
+struct GameObjectTexture {
+    textures: Vec<Texture>,
     texture_files: Vec<String>
 }

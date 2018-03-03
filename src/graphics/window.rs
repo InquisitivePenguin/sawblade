@@ -30,6 +30,7 @@ impl Window {
     }
 
     pub fn draw(&mut self, pixels: &Vec<Vec<Pixel>>) {
+        self.fill_blank();
         for i in pixels {
             for q in i {
                 self.canvas.set_draw_color(Color::RGB(q.rbg.0,q.rbg.1,q.rbg.2));
@@ -39,7 +40,15 @@ impl Window {
         self.canvas.present();
     }
 
+    fn fill_blank(&mut self) {
+        self.canvas.clear();
+    }
+
     pub fn close(&mut self) {
         self.context.sdldrop();
+    }
+
+    pub fn get_canvas(&mut self) -> &mut sdl2::render::Canvas<sdl2::video::Window> {
+        &mut self.canvas
     }
 }
