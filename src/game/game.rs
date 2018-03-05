@@ -19,7 +19,11 @@ use game::event::Event;
 use game::event::Event::*;
 use self::sdl2::Sdl;
 use self::sdl2::EventPump;
+use game::input::KeyboardKey::*;
+use self::sdl2::event::Event::*;
 
+
+#[derive(PartialEq)]
 enum GameLoopState {
     Continue,
     Exit,
@@ -36,6 +40,7 @@ impl GameBuilder {
     // Modifier functions go here
 
     pub fn with_blank_scene(mut self) -> GameBuilder {
+        self.def_scene_name = Some(SceneBuilder::blank().get_name());
         self.with_scene(SceneBuilder::blank)
     }
 
@@ -53,11 +58,12 @@ impl GameBuilder {
         let context = sdl2::init().unwrap();
         let graphicalcontext = GraphicalContext::new(&context, "Sawblade".to_string(), (1280,1080));
         let event_pump = (&context).event_pump().unwrap();
+        let def_scene_name = self.def_scene_name.clone();
         Game {
             sdl_context: context,
             world: World::new(self.scene_funcs, self.def_scene_name.expect("No default scene was provided"), (500,500)), // TODO: Replace with customizable dimensions
             gcontext: graphicalcontext,
-            default_scene_name: None,
+            default_scene_name: def_scene_name,
             event_pump: event_pump,
         }
     }
@@ -86,7 +92,10 @@ impl Game {
             self.world.set_scene(name);
         }
         loop {
-            (&mut self).game_cycle();
+            let state = (&mut self).game_cycle();
+            if state == Exit {
+                break
+            }
         }
     }
 
@@ -96,6 +105,12 @@ impl Game {
         //let mut scene = self.state.deref().borrow_mut().get_current_scene().borrow_mut();
         //scene.on_tick(Input::new());
         self.gcontext.wind.draw(&vec![]);
+        let collected_events = self.collect_events();
+        for event in collected_events {
+            if event == Key(Escape) || event == Close {
+                return Exit;
+            }
+        }
         Continue
     }
 
@@ -103,6 +118,17 @@ impl Game {
         let mut collector = vec![];
         // Always add tick
         collector.push(Tick);
+        collector.append(&mut self.event_pump_retrieve());
+        collector
+    }
+    fn event_pump_retrieve(&mut self) -> Vec<Event> {
+        let mut collector = vec![];
+        for event in self.event_pump.poll_iter() {
+            collector.push(match event {
+                Quit { .. } => Close,
+                _ => Tick
+            });
+        }
         collector
     }
     /*
