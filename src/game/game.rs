@@ -104,22 +104,20 @@ impl Game {
 
 
     fn game_cycle(&mut self) -> GameLoopState {
-        //let mut scene = self.state.deref().borrow_mut().get_current_scene().borrow_mut();
-        //scene.on_tick(Input::new());
-        self.gcontext.wind.draw(&vec![]);
         let collected_events = self.collect_events();
+        let collected_events_duplicate = collected_events.clone();
         for event in collected_events {
             if event == Key(Escape) || event == Close {
                 return Exit;
             }
         }
+        self.world.run_events(collected_events_duplicate);
+        self.gcontext.wind.draw(&vec![]);
         Continue
     }
 
     fn collect_events(&mut self) -> Vec<Event> {
         let mut collector = vec![];
-        // Always add tick
-        collector.push(Tick);
         collector.append(&mut self.event_pump_retrieve());
         collector
     }

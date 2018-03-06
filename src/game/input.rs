@@ -1,5 +1,5 @@
 // Taken from the SDL2 Rust binding keyboard mapping
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub enum KeyboardKey {
     Backspace,
     Tab,

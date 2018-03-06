@@ -19,6 +19,7 @@ impl World {
     }
     pub fn set_scene(&mut self, scene_name: String) {
         self.current_scene = Some(self.scene_creators.get(&scene_name).unwrap()());
+        self.current_scene.as_mut().unwrap().run_init(&self.state)
     }
 
     pub fn run_events(&mut self, events: Vec<Event>) {

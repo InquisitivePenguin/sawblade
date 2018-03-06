@@ -1,5 +1,5 @@
 use game::input::KeyboardKey;
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub enum Event {
     Tick,
     Key(KeyboardKey),
