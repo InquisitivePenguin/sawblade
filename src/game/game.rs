@@ -34,6 +34,7 @@ pub struct GameBuilder {
     g_context_settings: Option<((u32,u32), String)>,
     def_scene_name: Option<String>,
     scene_funcs: HashMap<String, fn() -> Scene>,
+    window_settings: (String, (u32,u32))
 }
 
 impl GameBuilder {
@@ -56,7 +57,7 @@ impl GameBuilder {
 
     pub fn build(mut self) -> Game {
         let context = sdl2::init().unwrap();
-        let graphicalcontext = GraphicalContext::new(&context, "Sawblade".to_string(), (1280,1080));
+        let graphicalcontext = GraphicalContext::new(&context, self.window_settings.0, self.window_settings.1);
         let event_pump = (&context).event_pump().unwrap();
         let def_scene_name = self.def_scene_name.clone();
         Game {
@@ -80,6 +81,7 @@ pub struct Game {
 impl Game {
     pub fn new(title:String, res: (u32,u32)) -> GameBuilder {
         GameBuilder {
+            window_settings: (title,res),
             g_context_settings: None,
             def_scene_name: None,
             scene_funcs: HashMap::new(),
