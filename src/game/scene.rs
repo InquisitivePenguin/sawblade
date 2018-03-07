@@ -64,8 +64,9 @@ pub struct Scene {
 
 impl Scene {
     pub fn tick(&mut self, events: Vec<Event>, world: &WorldState) -> Vec<FinalTexture> {
+        let self_ptr = self as *mut Scene;
         for entity in &mut self.entities {
-            entity.as_mut().recv("asdf".to_string());
+            entity.as_mut().tick(self_ptr);
         }
         let collected_textures = {
             let mut texture_collector = vec![];
@@ -90,5 +91,14 @@ impl Scene {
     pub fn spawn<T : GameObject + 'static>(&mut self, coordinates: (u32,u32)) {
         self.entities.push(Box::new(T::spawn(coordinates, self.next_id)));
         self.next_id += 1;
+    }
+
+    pub fn get_entity_by_id(&mut self, id: u64) -> Option<&mut GameObject> {
+        for mut entity in &mut self.entities {
+            if entity.get_id() == id {
+                return Some(entity.as_mut())
+            }
+        }
+        None
     }
 }
