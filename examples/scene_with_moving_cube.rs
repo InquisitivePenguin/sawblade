@@ -102,7 +102,7 @@ impl GameObject for Cube {
 fn main() {
     let game = Game::new("Scene with Cube".to_string(), (500,500))
         .with_scene(game_scene)
-        .default_scene("Default Scene")
+        .default_scene("Default Scene".to_string())
         .build();
     game.start();
 }

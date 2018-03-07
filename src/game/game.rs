@@ -82,10 +82,47 @@ impl GameBuilder {
         self
     }
 
-    pub fn default_scene(mut self, name: &str) -> GameBuilder {
-        self.def_scene_name = Some(name.to_string());
+    /// This is a modifier function that sets the default scene for the resulting `Game`. This _must_ be used when building
+    /// a game, or a runtime error will be thrown saying that no default scene was specified.
+    ///
+    /// The name of the scene is what you pass in to this function. If you don't know what the scene name is,
+    /// it's the string you initialize your SceneBuilder with in your scene generation function.
+    ///
+    /// Make sure that you also pass the scene definition in via `with_scene()`.
+    /// # Examples
+    /// ```
+    /// use sawblade::game::game::Game;
+    /// use sawblade::game::scene::Scene;
+    /// use sawblade::game::scene::SceneBuilder;
+    ///
+    /// fn my_custom_scene_function() -> Scene {
+    ///   SceneBuilder::new("My Scene".to_string()).build()
+    /// }
+    ///
+    /// let game_builder = Game::new("GameBuilder test".to_string(), (100,100)).with_scene(my_custom_scene_function)
+    /// .default_scene("My Scene".to_string());
+    /// ```
+    pub fn default_scene(mut self, name: String) -> GameBuilder {
+        self.def_scene_name = Some(name);
         self
     }
+
+    /// This function generates a `Game` from a `GameBuilder`. Keep in mind that this will also initialize the window along with it's canvas.
+    /// Therefore it's recommended to call `Game::start()` directly after creating it.
+    ///
+    /// # Examples
+    /// ```
+    /// use sawblade::game::game::Game;
+    /// use sawblade::game::scene::Scene;
+    /// use sawblade::game::scene::SceneBuilder;
+    ///
+    /// fn my_custom_scene_function() -> Scene {
+    ///   SceneBuilder::new("My Scene".to_string()).build()
+    /// }
+    ///
+    /// let game = Game::new("GameBuilder test".to_string(), (100,100)).with_scene(my_custom_scene_function)
+    /// .default_scene("My Scene".to_string()).build();
+    /// ```
 
     pub fn build(mut self) -> Game {
         let context = sdl2::init().unwrap();
@@ -138,6 +175,7 @@ impl Game {
             scene_funcs: HashMap::new(),
         }
     }
+    /// This function starts the game. It should probably be called directly after building the `Game` object.
 
     pub fn start(mut self) {
         {
