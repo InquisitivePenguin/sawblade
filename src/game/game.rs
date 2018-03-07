@@ -30,6 +30,15 @@ enum GameLoopState {
     Pause
 }
 
+/// The helper class for generating a `Game`. Usually created by a call to `Game::new`.
+///
+/// # Examples
+/// ```
+/// use sawblade::game::game::Game;
+///
+/// // Creates a GameBuilder instance
+/// let game_builder = Game::new("GameBuilder test".to_string(), (100,100));
+/// ```
 pub struct GameBuilder {
     g_context_settings: Option<((u32,u32), String)>,
     def_scene_name: Option<String>,
@@ -39,12 +48,35 @@ pub struct GameBuilder {
 
 impl GameBuilder {
     // Modifier functions go here
-
+    /// This is a modifier function that makes the resulting `Game` use a blank scene as a default scene.
+    /// To avoid unexpected problems, do not call this function twice on the same `GameBuilder` and do not
+    /// define any other scenes for this `GameBuilder`.
+    ///
+    /// # Examples
+    /// ```
+    /// use sawblade::game::game::Game;
+    ///
+    /// let game_builder = Game::new("GameBuilder test".to_string(), (100,100)).with_blank_scene();
+    /// ```
     pub fn with_blank_scene(mut self) -> GameBuilder {
         self.def_scene_name = Some(SceneBuilder::blank().get_name());
         self.with_scene(SceneBuilder::blank)
     }
 
+    /// This is a modifier function that defines a scene-creation function for the resulting `Game`.
+    /// To avoid problems, don't call this multiple times with the same input.
+    /// # Examples
+    /// ```
+    /// use sawblade::game::game::Game;
+    /// use sawblade::game::scene::Scene;
+    /// use sawblade::game::scene::SceneBuilder;
+    ///
+    /// fn my_custom_scene_function() -> Scene {
+    ///   SceneBuilder::new("My Scene".to_string()).build()
+    /// }
+    ///
+    /// let game_builder = Game::new("GameBuilder test".to_string(), (100,100)).with_scene(my_custom_scene_function);
+    /// ```
     pub fn with_scene(mut self, scene: fn() -> Scene) -> GameBuilder {
         self.scene_funcs.insert(scene().get_name(), scene);
         self
@@ -70,6 +102,15 @@ impl GameBuilder {
     }
 }
 
+/// Central entry point for any Sawblade game.
+/// This stores all the components nessecary to run the game, including the graphical layer, the world state, and the
+/// event handler.
+///
+/// This also abstracts many internal components of the system. The event handling, central game loop,
+/// FPS regulation, and other boilerplate things you would probably write as a part of a game engine
+/// are abstracted away from you. Though not currently implemented, it will become possible to override these
+/// things for more customization.
+
 pub struct Game {
     sdl_context: Sdl,
     world: World,
@@ -79,6 +120,16 @@ pub struct Game {
 }
 
 impl Game {
+    /// This function generates a `GameBuilder` given some settings for the windows.
+    /// Note that this does not actually create a `Game`, but a GameBuilder object.
+    /// There isn't a direct constructor for `Game`.
+    ///
+    /// # Examples
+    /// ```
+    /// use sawblade::game::game::Game;
+    /// let game_builder = Game::new("My game".to_string(), (1000,1000));
+    /// let game = game_builder.with_blank_scene().build();
+    /// ```
     pub fn new(title:String, res: (u32,u32)) -> GameBuilder {
         GameBuilder {
             window_settings: (title,res),
