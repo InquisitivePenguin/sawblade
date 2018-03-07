@@ -1,6 +1,7 @@
 use game::scene::Scene;
 use std::collections::HashMap;
 use game::event::Event;
+use graphics::texture::FinalTexture;
 pub struct World {
     scene_creators: HashMap<String, fn()-> Scene>,
     current_scene: Option<Scene>,
@@ -22,8 +23,8 @@ impl World {
         self.current_scene.as_mut().unwrap().run_init(&self.state)
     }
 
-    pub fn run_events(&mut self, events: Vec<Event>) {
-
+    pub fn run_events(&mut self, events: Vec<Event>) -> Vec<FinalTexture> {
+        self.current_scene.as_mut().unwrap().tick(events, &self.state)
     }
 }
 

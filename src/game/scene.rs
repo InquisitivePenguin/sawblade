@@ -25,7 +25,8 @@ impl SceneBuilder {
         Scene {
             entities: vec![],
             init: Box::new(Scene::default_init),
-            name: "Blank".to_string()
+            name: "Blank".to_string(),
+            next_id: 0
         }
     }
 
@@ -48,27 +49,46 @@ impl SceneBuilder {
             init: match self.init {
                 Some(func) => func,
                 None => Box::new(Scene::default_init)
-            }
+            },
+            next_id: 0
         }
     }
 }
 
 pub struct Scene {
-    entities: Vec<Box<GameObject>>,
+    pub entities: Vec<Box<GameObject>>,
     init: Box<fn(&mut Scene, &WorldState)>,
-    name: String
+    name: String,
+    next_id: u64
 }
 
 impl Scene {
-    pub fn tick(&mut self) {
-        println!("Running tick function!");
+    pub fn tick(&mut self, events: Vec<Event>, world: &WorldState) -> Vec<FinalTexture> {
+        for entity in &mut self.entities {
+            entity.as_mut().recv("asdf".to_string());
+        }
+        let collected_textures = {
+            let mut texture_collector = vec![];
+            for entity in &mut self.entities {
+                texture_collector.push(entity.as_mut().render().expect("Whoops"));
+            }
+            texture_collector
+        };
+        collected_textures
     }
-    fn default_init(scene: &mut Scene, state: &WorldState) {}
+    fn default_init(scene: &mut Scene, state: &WorldState) {
+
+    }
     pub fn get_name(&self) -> String {
         self.name.clone()
     }
 
     pub fn run_init(&mut self, state: &WorldState) {
         self.init.deref()(self, state);
+    }
+
+    pub fn spawn<T : GameObject + 'static>(&mut self, coordinates: (u32,u32)) {
+        self.entities.push(Box::new(T::spawn(coordinates, self.next_id)));
+        self.next_id += 1;
     }
 }

@@ -4,6 +4,9 @@ use self::sdl2::pixels::Color;
 use self::sdl2::Sdl;
 use graphics::pixel::Pixel;
 use std::rc::Rc;
+use graphics::texture::*;
+use self::sdl2::render::Canvas;
+use self::sdl2::rect::Rect;
 
 pub struct Window {
     title: String,
@@ -39,7 +42,31 @@ impl Window {
         self.canvas.present();
     }
 
-    fn fill_blank(&mut self) {
+    pub fn draw_texture(&mut self, texture: FinalTexture) {
+        let texture_creator = self.canvas.texture_creator();
+        match texture.get_texture() {
+            SawbladeTexture::Rect(width, height) => {
+                self.canvas.set_draw_color(Color::RGB(255,0,255));
+                println!("{}", texture.get_coordinates().0 as i32);
+                let rect = Rect::new(texture.get_coordinates().0 as i32, texture.get_coordinates().1 as i32, width, height);
+                self.canvas.fill_rect(rect).unwrap();
+            },
+            SawbladeTexture::Circle(radius) => {
+
+            }
+            SawbladeTexture::FromFile(file_name) => {
+
+            }
+        };
+        self.canvas.set_draw_color(Color::RGB(255,255,255));
+    }
+
+    pub fn update(&mut self) {
+        self.canvas.set_draw_color(Color::RGB(0,0,0));
+        self.canvas.present();
+    }
+
+    pub fn fill_blank(&mut self) {
         self.canvas.clear();
     }
 

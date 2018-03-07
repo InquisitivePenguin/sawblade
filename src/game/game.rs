@@ -101,8 +101,6 @@ impl Game {
         }
     }
 
-
-
     fn game_cycle(&mut self) -> GameLoopState {
         let collected_events = self.collect_events();
         let collected_events_duplicate = collected_events.clone();
@@ -111,8 +109,8 @@ impl Game {
                 return Exit;
             }
         }
-        self.world.run_events(collected_events_duplicate);
-        self.gcontext.wind.draw(&vec![]);
+        let textures = self.world.run_events(collected_events_duplicate);
+        self.gcontext.draw_textures(textures);
         Continue
     }
 

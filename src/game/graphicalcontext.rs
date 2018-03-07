@@ -6,6 +6,7 @@ use self::sdl2::render::Texture;
 use self::sdl2::Sdl;
 use graphics::window::Window;
 use std::collections::HashMap;
+use graphics::texture::*;
 
 pub struct GraphicalContext {
     pub wind: Window,
@@ -44,5 +45,15 @@ impl GraphicalContext {
             }
         }
         self.wind.close();
+    }
+
+    pub fn draw_textures(&mut self, textures: Vec<FinalTexture>) {
+        self.wind.fill_blank();
+        for texture in textures {
+            println!("1");
+            self.wind.draw_texture(texture);
+        }
+        println!("2");
+        self.wind.update();
     }
 }

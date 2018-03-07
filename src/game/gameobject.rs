@@ -8,10 +8,10 @@ pub trait GameObject {
     fn spawn(coordinates: (u32,u32), id: u64) -> Self where Self : Sized;
     fn get_id(&self) -> u64;
     fn recv(&mut self, trigger: String) {}
+    fn render(&mut self) -> Option<FinalTexture> {None}
 }
 
 pub trait GameEntity : GameObject {
     fn get_coordinates(&self) -> (u32,u32);
     fn get_bounding_box(&self) -> (u32,u32);
-    fn render(&mut self) -> Option<FinalTexture>;
 }
