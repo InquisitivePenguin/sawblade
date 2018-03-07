@@ -20,44 +20,16 @@ fn game_scene() -> Scene {
     SceneBuilder::new("Default Scene".to_string()).override_init(custom_game_init).build()
 }
 
-struct RotationController {
-    current_rotation: u32,
-    rotation_inc: u32,
-    id: u64
-}
-
-impl GameController for RotationController {
-    fn bind(id: u64) -> RotationController {
-        RotationController {
-            current_rotation: 0,
-            rotation_inc: 0,
-            id
-        }
-    }
-
-    fn recv(&mut self, message: Msg) {
-        match message {
-            Custom("inc_rotate", params) => {
-                let rotate_amount: u32 = params[0].parse().unwrap();
-                self.rotation_inc += rotate_amount;
-            }
-            _ => ()
-        }
-    }
-}
-
 struct Cube {
     coordinates: (u32,u32),
-    id: u64,
-    rotation_controller: RotationController
+    id: u64
 }
 
 impl GameObject for Cube {
     fn spawn(coordinates: (u32,u32), id: u64 ) -> Cube {
         Cube {
             coordinates,
-            id,
-            rotation_controller: RotationController::bind(id)
+            id
         }
     }
     fn get_id(&self) -> u64 {
