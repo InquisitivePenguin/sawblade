@@ -10,7 +10,6 @@ use self::sawblade::graphics::texture::FinalTexture;
 
 
 fn custom_game_init(scene: &mut Scene, world: &WorldState) {
-    println!("Hello!");
     scene.spawn::<Cube>((50,50));
     scene.spawn::<Cube>((400,400));
     scene.spawn::<Cube>((200,200));

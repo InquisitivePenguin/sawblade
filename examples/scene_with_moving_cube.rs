@@ -10,7 +10,6 @@ use self::sawblade::graphics::texture::FinalTexture;
 
 
 fn custom_game_init(scene: &mut Scene, world: &WorldState) {
-    println!("Hello!");
     scene.spawn::<Cube>((50,50));
     scene.spawn::<Cube>((400,400));
     scene.spawn::<Cube>((200,200));
@@ -87,12 +86,9 @@ impl GameObject for Cube {
     fn recv(&mut self, trigger: String) {
         match trigger.as_str() {
             "move" => {
-                println!("Moving");
                 self.coordinates.0 += self.movement_controller.movement_amount as u32;
             },
-            _ => {
-                println!("Hmm...");
-            }
+            _ => {}
         }
     }
     fn render(&mut self) -> Option<FinalTexture> {

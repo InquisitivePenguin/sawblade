@@ -50,10 +50,8 @@ impl GraphicalContext {
     pub fn draw_textures(&mut self, textures: Vec<FinalTexture>) {
         self.wind.fill_blank();
         for texture in textures {
-            println!("1");
             self.wind.draw_texture(texture);
         }
-        println!("2");
         self.wind.update();
     }
 }

@@ -47,9 +47,8 @@ impl Window {
         match texture.get_texture() {
             SawbladeTexture::Rect(width, height) => {
                 self.canvas.set_draw_color(Color::RGB(255,0,255));
-                println!("{}", texture.get_coordinates().0 as i32);
                 let rect = Rect::new(texture.get_coordinates().0 as i32, texture.get_coordinates().1 as i32, width, height);
-                self.canvas.fill_rect(rect).unwrap();
+                self.canvas.fill_rect(rect).expect("Could not draw rectangle to SDL2 canvas");
             },
             SawbladeTexture::Circle(radius) => {
 
