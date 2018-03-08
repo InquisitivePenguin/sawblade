@@ -1,7 +1,3 @@
-extern crate sdl2;
-use self::sdl2::render::Texture;
-use self::sdl2::render::TextureCreator;
-use std::cell::RefCell;
 // FinalTexture is a single image that represents a raw texture to be rendered to the screen
 pub struct FinalTexture {
     scene_coords: (u32,u32),

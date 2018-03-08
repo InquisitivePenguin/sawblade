@@ -1,13 +1,8 @@
 use game::gameobject::GameObject;
 use graphics::texture::FinalTexture;
-use graphics::pixel::Pixel;
-use std::marker::Sized;
-use std::rc::Weak;
-use std::rc::Rc;
-use std::ops::Deref;
-use std::cell::RefCell;
 use game::world::WorldState;
 use game::event::Event;
+use std::ops::Deref;
 
 pub enum SceneMsg {
     Continue,
@@ -42,7 +37,7 @@ impl SceneBuilder {
         self
     }
 
-    pub fn build(mut self) -> Scene {
+    pub fn build(self) -> Scene {
         Scene {
             entities: vec![],
             name: self.name,
@@ -63,6 +58,7 @@ pub struct Scene {
 }
 
 impl Scene {
+    // TODO: Use events & world
     pub fn tick(&mut self, events: Vec<Event>, world: &WorldState) -> Vec<FinalTexture> {
         let self_ptr = self as *mut Scene;
         for entity in &mut self.entities {
@@ -77,7 +73,7 @@ impl Scene {
         };
         collected_textures
     }
-    fn default_init(scene: &mut Scene, state: &WorldState) {
+    fn default_init(_scene: &mut Scene, _state: &WorldState) {
 
     }
     pub fn get_name(&self) -> String {

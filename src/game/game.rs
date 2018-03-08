@@ -1,18 +1,7 @@
 use game::graphicalcontext::GraphicalContext;
 use game::scene::Scene;
-use game::gameobject::GameObject;
-extern crate rand;
 extern crate sdl2;
-use self::rand::StdRng;
-use self::rand::Rng;
 use self::GameLoopState::*;
-use std::collections::HashMap;
-use std::rc::Rc;
-use std::rc::Weak;
-use std::ops::Deref;
-use graphics::pixel::Pixel;
-use std::cell::RefCell;
-use std::borrow::BorrowMut;
 use game::world::World;
 use game::scene::SceneBuilder;
 use game::event::Event;
@@ -21,13 +10,13 @@ use self::sdl2::Sdl;
 use self::sdl2::EventPump;
 use game::input::KeyboardKey::*;
 use self::sdl2::event::Event::*;
+use std::collections::HashMap;
 
 
 #[derive(PartialEq)]
 enum GameLoopState {
     Continue,
-    Exit,
-    Pause
+    Exit
 }
 
 /// The helper class for generating a `Game`. Usually created by a call to `Game::new`.
@@ -124,7 +113,7 @@ impl GameBuilder {
     /// .default_scene("My Scene".to_string()).build();
     /// ```
 
-    pub fn build(mut self) -> Game {
+    pub fn build(self) -> Game {
         let context = sdl2::init().unwrap();
         let graphicalcontext = GraphicalContext::new(&context, self.window_settings.0, self.window_settings.1);
         let event_pump = (&context).event_pump().unwrap();

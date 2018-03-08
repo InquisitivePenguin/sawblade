@@ -3,9 +3,7 @@ use self::sdl2::rect::Point;
 use self::sdl2::pixels::Color;
 use self::sdl2::Sdl;
 use graphics::pixel::Pixel;
-use std::rc::Rc;
 use graphics::texture::*;
-use self::sdl2::render::Canvas;
 use self::sdl2::rect::Rect;
 
 pub struct Window {
@@ -43,19 +41,22 @@ impl Window {
     }
 
     pub fn draw_texture(&mut self, texture: FinalTexture) {
-        let texture_creator = self.canvas.texture_creator();
+        //let texture_creator = self.canvas.texture_creator();
         match texture.get_texture() {
             SawbladeTexture::Rect(width, height) => {
                 self.canvas.set_draw_color(Color::RGB(255,0,255));
                 let rect = Rect::new(texture.get_coordinates().0 as i32, texture.get_coordinates().1 as i32, width, height);
                 self.canvas.fill_rect(rect).expect("Could not draw rectangle to SDL2 canvas");
             },
+            /*
             SawbladeTexture::Circle(radius) => {
 
             }
             SawbladeTexture::FromFile(file_name) => {
 
             }
+            */
+            _ => ()
         };
         self.canvas.set_draw_color(Color::RGB(255,255,255));
     }

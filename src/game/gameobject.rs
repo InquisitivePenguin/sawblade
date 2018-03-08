@@ -1,5 +1,4 @@
 use graphics::texture::FinalTexture;
-use std::cell::Ref;
 use game::scene::Scene;
 
 pub trait GameObject {
@@ -8,9 +7,9 @@ pub trait GameObject {
     */
     fn spawn(coordinates: (u32,u32), id: u64) -> Self where Self : Sized;
     fn get_id(&self) -> u64;
-    fn recv(&mut self, trigger: String) {}
+    fn recv(&mut self, _trigger: String) {}
     fn render(&mut self) -> Option<FinalTexture> {None}
-    fn tick(&mut self, scene: *mut Scene) {}
+    fn tick(&mut self, _scene: *mut Scene) {}
 }
 
 pub trait GameEntity : GameObject {
