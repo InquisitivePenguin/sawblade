@@ -6,4 +6,5 @@ pub mod world;
 pub mod event;
 pub mod gamecontroller;
 pub mod msg;
+pub mod fps;
 mod graphicalcontext;

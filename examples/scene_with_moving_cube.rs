@@ -47,19 +47,21 @@ impl GameController for RotationController {
 
 struct MoveController {
     obj_id: u64,
-    pub movement_amount: i32
+    pub movement_amount: i32,
+    between_counter: u32
 }
 
 impl GameController for MoveController {
     fn bind(id: u64) -> MoveController {
         MoveController {
             obj_id: id,
-            movement_amount: 1
+            movement_amount: 1,
+            between_counter: 0
         }
     }
     fn tick(&mut self, scene: *mut Scene) {
         unsafe {
-            (*scene).get_entity_by_id(self.obj_id).unwrap().recv("move".to_string());
+            (*scene).get_entity_by_id(self.obj_id).unwrap().recv(scene, "move".to_string());
         }
     }
 }
@@ -83,7 +85,7 @@ impl GameObject for Cube {
     fn get_id(&self) -> u64 {
         self.id
     }
-    fn recv(&mut self, trigger: String) {
+    fn recv(&mut self, scene: *mut Scene, trigger: String) {
         match trigger.as_str() {
             "move" => {
                 self.coordinates.0 += self.movement_controller.movement_amount as u32;
