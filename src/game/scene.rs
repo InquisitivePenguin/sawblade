@@ -1,3 +1,4 @@
+/*
 use game::gameobject::GameObject;
 use graphics::texture::FinalTexture;
 use game::world::WorldState;
@@ -98,3 +99,4 @@ impl Scene {
         None
     }
 }
+*/

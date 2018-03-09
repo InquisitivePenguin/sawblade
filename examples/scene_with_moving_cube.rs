@@ -13,6 +13,7 @@ fn custom_game_init(scene: &mut Scene, world: &WorldState) {
     scene.spawn::<Cube>((50,50));
     scene.spawn::<Cube>((400,400));
     scene.spawn::<Cube>((200,200));
+    scene.spawn::<Cube>((60,60));
 }
 
 fn game_scene() -> Scene {
@@ -55,7 +56,7 @@ impl GameController for MoveController {
     fn bind(id: u64) -> MoveController {
         MoveController {
             obj_id: id,
-            movement_amount: 1,
+            movement_amount: 3,
             between_counter: 0
         }
     }

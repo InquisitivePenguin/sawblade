@@ -1,9 +1,7 @@
 use game::graphicalcontext::GraphicalContext;
-use game::scene::Scene;
 extern crate sdl2;
 use self::GameLoopState::*;
 use game::world::World;
-use game::scene::SceneBuilder;
 use game::event::Event;
 use game::event::Event::*;
 use self::sdl2::Sdl;
@@ -11,6 +9,7 @@ use self::sdl2::EventPump;
 use game::input::KeyboardKey::*;
 use self::sdl2::event::Event::*;
 use std::collections::HashMap;
+use game::fps::FPSRegulator;
 
 
 #[derive(PartialEq)]
@@ -30,69 +29,17 @@ enum GameLoopState {
 /// ```
 pub struct GameBuilder {
     g_context_settings: Option<((u32,u32), String)>,
-    def_scene_name: Option<String>,
-    scene_funcs: HashMap<String, fn() -> Scene>,
-    window_settings: (String, (u32,u32))
+    window_settings: (String, (u32,u32)),
+    world_fn: Option<fn() -> Box<World>>
 }
 
 impl GameBuilder {
     // Modifier functions go here
-    /// This is a modifier function that makes the resulting `Game` use a blank scene as a default scene.
-    /// To avoid unexpected problems, do not call this function twice on the same `GameBuilder` and do not
-    /// define any other scenes for this `GameBuilder`.
-    ///
-    /// # Examples
-    /// ```
-    /// use sawblade::game::game::Game;
-    ///
-    /// let game_builder = Game::new("GameBuilder test".to_string(), (100,100)).with_blank_scene();
-    /// ```
-    pub fn with_blank_scene(mut self) -> GameBuilder {
-        self.def_scene_name = Some(SceneBuilder::blank().get_name());
-        self.with_scene(SceneBuilder::blank)
-    }
 
-    /// This is a modifier function that defines a scene-creation function for the resulting `Game`.
-    /// To avoid problems, don't call this multiple times with the same input.
-    /// # Examples
-    /// ```
-    /// use sawblade::game::game::Game;
-    /// use sawblade::game::scene::Scene;
-    /// use sawblade::game::scene::SceneBuilder;
-    ///
-    /// fn my_custom_scene_function() -> Scene {
-    ///   SceneBuilder::new("My Scene".to_string()).build()
-    /// }
-    ///
-    /// let game_builder = Game::new("GameBuilder test".to_string(), (100,100)).with_scene(my_custom_scene_function);
-    /// ```
-    pub fn with_scene(mut self, scene: fn() -> Scene) -> GameBuilder {
-        self.scene_funcs.insert(scene().get_name(), scene);
-        self
-    }
+    /// This function sets the world
 
-    /// This is a modifier function that sets the default scene for the resulting `Game`. This _must_ be used when building
-    /// a game, or a runtime error will be thrown saying that no default scene was specified.
-    ///
-    /// The name of the scene is what you pass in to this function. If you don't know what the scene name is,
-    /// it's the string you initialize your SceneBuilder with in your scene generation function.
-    ///
-    /// Make sure that you also pass the scene definition in via `with_scene()`.
-    /// # Examples
-    /// ```
-    /// use sawblade::game::game::Game;
-    /// use sawblade::game::scene::Scene;
-    /// use sawblade::game::scene::SceneBuilder;
-    ///
-    /// fn my_custom_scene_function() -> Scene {
-    ///   SceneBuilder::new("My Scene".to_string()).build()
-    /// }
-    ///
-    /// let game_builder = Game::new("GameBuilder test".to_string(), (100,100)).with_scene(my_custom_scene_function)
-    /// .default_scene("My Scene".to_string());
-    /// ```
-    pub fn default_scene(mut self, name: String) -> GameBuilder {
-        self.def_scene_name = Some(name);
+    pub fn with_world(mut self, world_fn: fn() -> Box<World>) -> GameBuilder {
+        self.world_fn = Some(world_fn);
         self
     }
 
@@ -102,28 +49,35 @@ impl GameBuilder {
     /// # Examples
     /// ```
     /// use sawblade::game::game::Game;
-    /// use sawblade::game::scene::Scene;
-    /// use sawblade::game::scene::SceneBuilder;
+    /// use sawblade::game::world::World;
+    /// use sawblade::game::event::Event;
     ///
-    /// fn my_custom_scene_function() -> Scene {
-    ///   SceneBuilder::new("My Scene".to_string()).build()
+    /// struct MyWorld {}
+    ///
+    /// impl World for MyWorld {
+    ///   fn event_loop(events: Vec<Event>) -> Vec<FinalTexture> {
+    ///     vec![]
+    ///   }
     /// }
     ///
-    /// let game = Game::new("GameBuilder test".to_string(), (100,100)).with_scene(my_custom_scene_function)
-    /// .default_scene("My Scene".to_string()).build();
+    /// fn build_world() -> Box<World> {
+    ///   Box::new(MyWorld {})
+    /// }
+    ///
+    /// let game = Game::new("GameBuilder test".to_string(), (100,100)).with_world(build_world)
+    /// .build();
     /// ```
 
     pub fn build(self) -> Game {
         let context = sdl2::init().unwrap();
         let graphicalcontext = GraphicalContext::new(&context, self.window_settings.0, self.window_settings.1);
         let event_pump = (&context).event_pump().unwrap();
-        let def_scene_name = self.def_scene_name.clone();
         Game {
             sdl_context: context,
-            world: World::new(self.scene_funcs, self.def_scene_name.expect("No default scene was provided"), (500,500)), // TODO: Replace with customizable dimensions
+            world: self.world_fn.expect("No world generation function was passed to the engine")(),
             gcontext: graphicalcontext,
-            default_scene_name: def_scene_name,
-            event_pump: event_pump,
+            event_pump,
+            fps_reg: FPSRegulator::new(60)
         }
     }
 }
@@ -139,10 +93,10 @@ impl GameBuilder {
 
 pub struct Game {
     sdl_context: Sdl,
-    world: World,
+    world: Box<World>,
     gcontext: GraphicalContext,
-    default_scene_name: Option<String>,
-    event_pump: EventPump
+    event_pump: EventPump,
+    fps_reg: FPSRegulator
 }
 
 impl Game {
@@ -160,17 +114,12 @@ impl Game {
         GameBuilder {
             window_settings: (title,res),
             g_context_settings: None,
-            def_scene_name: None,
-            scene_funcs: HashMap::new(),
+            world_fn: None
         }
     }
     /// This function starts the game. It should probably be called directly after building the `Game` object.
 
     pub fn start(mut self) {
-        {
-            let name = (&self).default_scene_name.clone().expect("No default scene was provided");
-            self.world.set_scene(name);
-        }
         loop {
             let state = (&mut self).game_cycle();
             if state == Exit {
@@ -180,6 +129,7 @@ impl Game {
     }
 
     fn game_cycle(&mut self) -> GameLoopState {
+        self.fps_reg.start();
         let collected_events = self.collect_events();
         let collected_events_duplicate = collected_events.clone();
         for event in collected_events {
@@ -187,8 +137,9 @@ impl Game {
                 return Exit;
             }
         }
-        let textures = self.world.run_events(collected_events_duplicate);
+        let textures = self.world.as_mut().event_loop(collected_events_duplicate);
         self.gcontext.draw_textures(textures);
+        self.fps_reg.wait();
         Continue
     }
 
