@@ -120,6 +120,7 @@ impl Game {
     /// This function starts the game. It should probably be called directly after building the `Game` object.
 
     pub fn start(mut self) {
+        self.world.init();
         loop {
             let state = (&mut self).game_cycle();
             if state == Exit {

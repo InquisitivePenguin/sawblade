@@ -1,4 +1,5 @@
 // FinalTexture is a single image that represents a raw texture to be rendered to the screen
+#[derive(Debug)]
 pub struct FinalTexture {
     scene_coords: (u32,u32),
     texture: SawbladeTexture
@@ -25,7 +26,7 @@ impl FinalTexture {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum SawbladeTexture {
     Rect(u32,u32),
     Circle(u32),
