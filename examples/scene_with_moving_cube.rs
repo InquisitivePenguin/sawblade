@@ -1,12 +1,10 @@
 extern crate sawblade;
-use self::sawblade::game::game::Game;
-use self::sawblade::game::msg::Msg;
-use self::sawblade::game::msg::Msg::*;
+use self::sawblade::core::game::Game;
+use self::sawblade::core::event::Event;
 use self::sawblade::graphics::texture::FinalTexture;
-use self::sawblade::game::world::World;
-use self::sawblade::game::event::Event;
-use self::sawblade::game::gamecontroller::Controller;
-use self::sawblade::game::gameobject::Entity;
+use self::sawblade::core::world::World;
+use self::sawblade::core::entity::Entity;
+use self::sawblade::controllers::Controller;
 
 fn build_world() -> Box<World> {
     Box::new(
@@ -59,6 +57,7 @@ struct MoveController {
 }
 
 impl Controller for MoveController {
+    type World = GameWorld;
     fn bind(id: u64) -> MoveController {
         MoveController {
             obj_id: id,
@@ -66,7 +65,7 @@ impl Controller for MoveController {
             between_counter: 0
         }
     }
-    fn tick(&mut self, world: *mut World) {
+    fn tick(&mut self, world: *mut GameWorld) {
         /*
         unsafe {
             (*scene).get_entity_by_id(self.obj_id).unwrap().recv(scene, "move".to_string());
@@ -82,6 +81,7 @@ struct Cube {
 }
 
 impl Entity for Cube {
+    type World = GameWorld;
     fn spawn(coordinates: (u32,u32), id: u64 ) -> Cube {
         Cube {
             coordinates,
@@ -92,7 +92,7 @@ impl Entity for Cube {
     fn get_id(&self) -> u64 {
         self.id
     }
-    fn recv(&mut self, world: *mut World, trigger: String) {
+    fn recv(&mut self, world: *mut GameWorld, trigger: String) {
         match trigger.as_str() {
             "move" => {
                 self.coordinates.0 += self.movement_controller.movement_amount as u32;
@@ -103,7 +103,7 @@ impl Entity for Cube {
     fn render(&mut self) -> Option<FinalTexture> {
         Some(FinalTexture::make_rect((50,50), self.coordinates))
     }
-    fn tick(&mut self, world: *mut World) {
+    fn tick(&mut self, world: *mut GameWorld) {
         self.movement_controller.tick(world);
     }
 }

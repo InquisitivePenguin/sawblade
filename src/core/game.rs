@@ -1,15 +1,15 @@
-use game::graphicalcontext::GraphicalContext;
+use graphics::graphicalcontext::GraphicalContext;
 extern crate sdl2;
 use self::GameLoopState::*;
-use game::world::World;
-use game::event::Event;
-use game::event::Event::*;
+use core::world::World;
+use core::event::Event;
+use core::event::Event::*;
 use self::sdl2::Sdl;
 use self::sdl2::EventPump;
-use game::input::KeyboardKey::*;
+use core::input::KeyboardKey::*;
 use self::sdl2::event::Event::*;
 use std::collections::HashMap;
-use game::fps::FPSRegulator;
+use core::fps::FPSRegulator;
 
 
 #[derive(PartialEq)]

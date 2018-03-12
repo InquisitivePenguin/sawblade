@@ -1,4 +1,4 @@
-use game::input::KeyboardKey;
+use core::input::KeyboardKey;
 #[derive(PartialEq, Clone)]
 pub enum Event {
     Tick,

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use game::event::Event;
+use core::event::Event;
 use graphics::texture::FinalTexture;
 
 pub trait World {
