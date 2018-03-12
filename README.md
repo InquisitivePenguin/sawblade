@@ -1,8 +1,48 @@
 # Sawblade
 
-Sawblade is a game engine written in Rust, with a focus on speed, safety, and modularity. This library exposes both high-level and
-low-level functionality, allowing you to customize what gets rendered down to the pixel, while also providing many useful
-helper functions to reduce boilerplate code.
+Sawblade is a game engine written in Rust, with a focus on speed, safety, and modularity. It allows you to build your game up from the
+lowest level, but still abstract and simplify what would otherwise be boilerplate with a plethora of helper functions and classes.
+
+A simple breakout clone can be written in a very small amount of code compared to other Rust-powered game engines:
+```rust
+extern crate sawblade;
+use sawblade::core::{Game, World, Entity, Event};
+use sawblade::controllers::physics::{VelocityController};
+use sawblade::graphics::{FinalTexture};
+
+struct Block {
+  sawblade_entity_required!()
+  broken: bool
+}
+
+struct Ball {
+  sawblade_entity_required!(),
+  velocity_con: VelocityController
+}
+
+struct Paddle {
+  sawblade_entity_required!()
+}
+
+struct GameWorld {
+  blocks: Vec<(u32,u32), Entity>,
+  paddle: Paddle
+}
+
+implement_texture_only_entity!(Block,
+{
+  Some(FinalTexture::make_rect((50,50), (0,0,0)))
+}, World = GameWorld)
+
+impl Entity for Ball {
+  entity_world!(GameWorld)
+  entity_default_spawn!()
+  fn tick(&mut self, *mut GameWorld) {
+    
+  }
+}
+
+```
 
 ## Installing
 Clone this repository, then run `cargo build` to build the library.
