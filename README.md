@@ -10,7 +10,7 @@ extern crate sawblade;
 use sawblade::core::{Game, World, Entity, Event, KeyboardKey};
 use sawblade::controllers::physics::{VelocityController, VelocityScheduler};
 use sawblade::graphics::{FinalTexture};
-use sawblade::utils::collision::{is_overlapping};
+use sawblade::utils::collision::{is_point_overlapping_with_rect};
 
 struct Block {
   sawblade_entity_required!()
@@ -38,11 +38,12 @@ implement_texture_only_entity!(Block,
   Some(FinalTexture::make_rect((50,50), (0,0,0)))
 }, World = GameWorld)
 
+
 impl Entity for Ball {
   entity_world!(GameWorld)
   entity_default_spawn!()
   fn tick(&mut self, *mut GameWorld) {
-    
+    if is_point_overlapping_with_rect(self.coordinates, 
   }
 }
 
@@ -70,9 +71,15 @@ handle_events => {
       Tick => {
         self.handler.update_all();
         tick_for_entities!(self.blocks);
+        tick_for_entity!(self.ball);
+        tick_for_entity!(self.paddle);
       }
     }
   });
+});
+
+fn main() {
+  sawblade_run_world!(GameWorld::new, "Breakout clone", (1000,1000));
 }
 ```
 
@@ -91,17 +98,17 @@ will increase in size over time.
 
 Here is what we hope to implement on each release:
 
-`0.1`: windows, pixel buffers, textures, sprites, event triggers, customizable basic loops
+`0.1`: windows, textures, file loading, entities, basic controllers, worlds, coordinate systems, basic macros
 
-`0.2`: more customizable looping, basic physics, more advanced external sprite-based manipulation, user input event handling templates
+`0.2`: basic physics, more macros, schedulers, better graphical manipulation
 
-`0.3`: graphical shaders, basic AI abstraction, higher-level manipulation functions
+`0.3`: graphical shaders, basic AI controllers, sound handling, tile-maps, basic UI helpers
 
-`0.4`: extensive window manipulation, particle effects
+`0.4`: extensive macro collections, particle effects, better UI support
 
 `0.5`: Multi-threading support
 
-`0.6`: Box2D integration
+`0.6`: Box2D integration with Physics components
 
 More to be announced.
 
