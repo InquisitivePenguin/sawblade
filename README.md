@@ -1,8 +1,80 @@
 # Sawblade
 
-Sawblade is a game engine written in Rust, with a focus on speed, safety, and modularity. This library exposes both high-level and
-low-level functionality, allowing you to customize what gets rendered down to the pixel, while also providing many useful
-helper functions to reduce boilerplate code.
+Sawblade is a game engine written in Rust, with a focus on speed, safety, and modularity. It allows you to build your game up from the
+lowest level, but still abstract and simplify what would otherwise be boilerplate with a plethora of helper functions and classes. It allows this by supplying many macros for ease of use and abstraction, as well as many helper classes.
+
+A simple breakout clone can be written in a very small amount of code compared to other Rust-powered game engines:
+```rust
+#[use_macros]
+extern crate sawblade;
+use sawblade::core::{Game, World, Entity, Event, KeyboardKey};
+use sawblade::controllers::physics::{VelocityController, VelocityScheduler};
+use sawblade::graphics::{FinalTexture};
+use sawblade::utils::collision::{is_overlapping};
+
+struct Block {
+  sawblade_entity_required!()
+  broken: bool
+}
+
+struct Ball {
+  sawblade_entity_required!(),
+  velocity_con: VelocityController
+}
+
+struct Paddle {
+  sawblade_entity_required!()
+}
+
+struct GameWorld {
+  blocks: Vec<(u32,u32), Entity>,
+  ball: Ball
+  paddle: Paddle,
+  handler: VelocityHandler
+}
+
+implement_texture_only_entity!(Block,
+{
+  Some(FinalTexture::make_rect((50,50), (0,0,0)))
+}, World = GameWorld)
+
+impl Entity for Ball {
+  entity_world!(GameWorld)
+  entity_default_spawn!()
+  fn tick(&mut self, *mut GameWorld) {
+    
+  }
+}
+
+impl VelocityController for Ball {
+  velocity_controller_default_bind_with_default_props!()
+  velocity_controller_no_gravity!()
+  velocity_controller_
+}
+
+implement_world_with_funcs!(GameWorld,
+init => {
+  self.handler.initialize();
+  self.handler.track<Ball>(&self.ball, "Ball".to_string());
+  self.handler.track<Paddle>
+},
+handle_events => {
+  each_event!({
+    match event {
+      Event::KeyPressed(KeyboardKey::LeftArrow) => {
+        self.handler.get("Paddle").unwrap().set_velocity(-0.5);
+      }
+      Event::KeyPressed(KeyboardKey::RightArrow) => {
+        self.handler.get("Paddle").unwrap().set_velocity(0.5);
+      }
+      Tick => {
+        self.handler.update_all();
+        tick_for_entities!(self.blocks);
+      }
+    }
+  });
+}
+```
 
 ## Installing
 Clone this repository, then run `cargo build` to build the library.
