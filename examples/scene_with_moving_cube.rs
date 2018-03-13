@@ -1,3 +1,4 @@
+#[macro_use]
 extern crate sawblade;
 use self::sawblade::core::game::Game;
 use self::sawblade::core::event::Event;
@@ -109,8 +110,5 @@ impl Entity for Cube {
 }
 
 fn main() {
-    let game = Game::new("Scene with Cube".to_string(), (500,500))
-        .with_world(build_world)
-        .build();
-    game.start();
+    sawblade_run_world!(build_world, "Scene with Cube", (500,500));
 }

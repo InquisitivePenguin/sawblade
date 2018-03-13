@@ -167,3 +167,14 @@ impl Game {
         self.gcontext.wind.is_open()
     }
 }
+
+// Macros go here
+#[macro_export]
+macro_rules! sawblade_run_world {
+    ($world: ident, $title: expr, $res: expr) => {
+        {
+            use sawblade::core::game::Game;
+            Game::new($title.to_string(), $res).with_world($world).build().start();
+        }
+    };
+}
