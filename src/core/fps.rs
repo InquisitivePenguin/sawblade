@@ -22,7 +22,9 @@ impl FPSRegulator {
 
     pub fn wait(&mut self) {
         let time_elapsed = self.start.elapsed();
-        let wait = self.wait_time - time_elapsed;
-        sleep(wait);
+        if self.wait_time > time_elapsed {
+            let wait = self.wait_time - time_elapsed;
+            sleep(wait);
+        }
     }
 }
