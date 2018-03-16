@@ -10,6 +10,7 @@ use core::input::KeyboardKey::*;
 use self::sdl2::event::Event::*;
 use std::collections::HashMap;
 use core::fps::FPSRegulator;
+use core::input::KeyboardKey;
 
 
 #[derive(PartialEq)]
@@ -151,10 +152,15 @@ impl Game {
     }
     fn event_pump_retrieve(&mut self) -> Vec<Event> {
         let mut collector = vec![];
+        collector.push(Tick);
         for event in self.event_pump.poll_iter() {
             collector.push(match event {
                 Quit { .. } => Close,
-                _ => Tick
+                KeyDown {
+                    keycode: key_c,
+                    ..
+                } => Key(KeyboardKey::from_keycode(key_c.unwrap())),
+                _ => Unrecognized
             });
         }
         collector

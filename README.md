@@ -5,7 +5,7 @@ lowest level, but still abstract and simplify what would otherwise be boilerplat
 
 A simple breakout clone can be written in a very small amount of code compared to other Rust-powered game engines:
 ```rust
-#[use_macros]
+#[macro_use]
 extern crate sawblade;
 use sawblade::core::{Game, World, Entity, Event, KeyboardKey};
 use sawblade::controllers::physics::{VelocityController, VelocityScheduler};
@@ -28,7 +28,7 @@ struct Paddle {
 
 struct GameWorld {
   blocks: Vec<(u32,u32), Entity>,
-  ball: Ball
+  ball: Ball,
   paddle: Paddle,
   handler: VelocityHandler
 }
@@ -42,7 +42,7 @@ implement_texture_only_entity!(Block,
 impl Entity for Ball {
   entity_world!(GameWorld)
   entity_default_spawn!()
-  fn tick(&mut self, *mut GameWorld) {
+  fn tick(&mut self, world: &mut GameWorld) {
     if is_point_overlapping_with_rect(self.coordinates, 
   }
 }

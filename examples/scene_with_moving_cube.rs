@@ -6,6 +6,8 @@ use self::sawblade::graphics::texture::FinalTexture;
 use self::sawblade::core::world::World;
 use self::sawblade::core::entity::Entity;
 use self::sawblade::controllers::Controller;
+use self::sawblade::core::coordinate_system::CoordinateSystem;
+use self::sawblade::core::input::KeyboardKey;
 
 fn build_world() -> Box<World> {
     Box::new(
@@ -14,13 +16,15 @@ fn build_world() -> Box<World> {
 }
 
 struct GameWorld {
-    cubes: Vec<Cube>
+    cubes: Vec<Cube>,
+    pub coordinate_system: CoordinateSystem
 }
 
 impl GameWorld {
     pub fn new() -> GameWorld {
         GameWorld {
-            cubes: vec![]
+            cubes: vec![],
+            coordinate_system: CoordinateSystem::new(500, 500, 1)
         }
     }
 }
@@ -37,7 +41,9 @@ impl World for GameWorld {
         unsafe {
             let ptr = self as *mut GameWorld;
             for cube in &mut (*ptr).cubes {
-                cube.recv(ptr, "move".to_string());
+                for event in &events {
+                    cube.event(&mut (*ptr), event.clone());
+                }
             }
             let mut collected = vec![];
             for cube in &mut (*ptr).cubes {
@@ -78,7 +84,8 @@ impl Controller for MoveController {
 struct Cube {
     coordinates: (u32,u32),
     id: u64,
-    movement_controller: MoveController
+    movement_controller: MoveController,
+    moving_left: bool
 }
 
 impl Entity for Cube {
@@ -87,25 +94,34 @@ impl Entity for Cube {
         Cube {
             coordinates,
             id,
-            movement_controller: MoveController::bind(id)
+            movement_controller: MoveController::bind(id),
+            moving_left: false
         }
     }
     fn get_id(&self) -> u64 {
         self.id
     }
-    fn recv(&mut self, world: *mut GameWorld, trigger: String) {
-        match trigger.as_str() {
-            "move" => {
-                self.coordinates.0 += self.movement_controller.movement_amount as u32;
-            },
+    fn event(&mut self, world: &mut GameWorld, event: Event) {
+        match event {
+            Event::Tick => {
+                if self.moving_left {
+                    self.coordinates = world.coordinate_system.move_to(self.coordinates, -self.movement_controller.movement_amount, 0);
+                }
+                else {
+                    self.coordinates = world.coordinate_system.move_to(self.coordinates, self.movement_controller.movement_amount, 0);
+                }
+            }
+            Event::Key(KeyboardKey::Left) => {
+                self.moving_left = true;
+            }
+            Event::Key(KeyboardKey::Right) => {
+                self.moving_left = false;
+            }
             _ => {}
         }
     }
     fn render(&mut self) -> Option<FinalTexture> {
         Some(FinalTexture::make_rect((50,50), self.coordinates))
-    }
-    fn tick(&mut self, world: *mut GameWorld) {
-        self.movement_controller.tick(world);
     }
 }
 
