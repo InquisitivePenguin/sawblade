@@ -5,7 +5,7 @@ use self::sawblade::core::event::Event;
 use self::sawblade::graphics::texture::FinalTexture;
 use self::sawblade::core::world::World;
 use self::sawblade::core::entity::Entity;
-use self::sawblade::controllers::Controller;
+use self::sawblade::controllers::*;
 use self::sawblade::core::coordinate_system::CoordinateSystem;
 use self::sawblade::core::input::KeyboardKey;
 
@@ -45,47 +45,16 @@ impl World for GameWorld {
                     cube.event(&mut (*ptr), event.clone());
                 }
             }
-            let mut collected = vec![];
-            for cube in &mut (*ptr).cubes {
-                match cube.render() {
-                    Some(texture) => collected.push(texture),
-                    None => ()
-                }
-            }
-            collected
+            render(self.cubes.as_mut())
         }
-    }
-}
-
-struct MoveController {
-    obj_id: u64,
-    pub movement_amount: i32,
-    between_counter: u32
-}
-
-impl Controller for MoveController {
-    type World = GameWorld;
-    fn bind(id: u64) -> MoveController {
-        MoveController {
-            obj_id: id,
-            movement_amount: 3,
-            between_counter: 0
-        }
-    }
-    fn tick(&mut self, world: *mut GameWorld) {
-        /*
-        unsafe {
-            (*scene).get_entity_by_id(self.obj_id).unwrap().recv(scene, "move".to_string());
-        }
-        */
     }
 }
 
 struct Cube {
     coordinates: (u32,u32),
     id: u64,
-    movement_controller: MoveController,
-    moving_left: bool
+    moving_left: bool,
+    movement_amount: i32
 }
 
 impl Entity for Cube {
@@ -94,7 +63,7 @@ impl Entity for Cube {
         Cube {
             coordinates,
             id,
-            movement_controller: MoveController::bind(id),
+            movement_amount: 3,
             moving_left: false
         }
     }
@@ -105,10 +74,10 @@ impl Entity for Cube {
         match event {
             Event::Tick => {
                 if self.moving_left {
-                    self.coordinates = world.coordinate_system.move_to(self.coordinates, -self.movement_controller.movement_amount, 0);
+                    self.coordinates = world.coordinate_system.move_to(self.coordinates, -self.movement_amount, 0);
                 }
                 else {
-                    self.coordinates = world.coordinate_system.move_to(self.coordinates, self.movement_controller.movement_amount, 0);
+                    self.coordinates = world.coordinate_system.move_to(self.coordinates, self.movement_amount, 0);
                 }
             }
             Event::Key(KeyboardKey::Left) => {
@@ -120,8 +89,15 @@ impl Entity for Cube {
             _ => {}
         }
     }
-    fn render(&mut self) -> Option<FinalTexture> {
-        Some(FinalTexture::make_rect((50,50), self.coordinates))
+}
+
+impl Renderable for Cube {
+    fn render(&mut self) -> Option<Vec<FinalTexture>> {
+        Some(
+            vec![
+              FinalTexture::make_rect((50,50), self.coordinates)
+            ]
+        )
     }
 }
 
