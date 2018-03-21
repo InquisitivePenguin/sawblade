@@ -13,7 +13,6 @@ impl CoordinateSystem {
         }
     }
     pub fn move_to(&self, current: (u32, u32), x_movement: i32, y_movement: i32) -> (u32,u32) {
-        println!("{}", x_movement);
         let mut x = 0;
         if current.0 as i32 + x_movement > 0 {
             x = current.0 as i32 + x_movement;

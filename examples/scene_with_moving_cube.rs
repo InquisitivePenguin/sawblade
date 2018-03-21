@@ -54,7 +54,9 @@ struct Cube {
     coordinates: (u32,u32),
     id: u64,
     moving_left: bool,
-    movement_amount: i32
+    moving_up: bool,
+    movement_amount_x: i32,
+    movement_amount_y: i32
 }
 
 impl Entity for Cube {
@@ -63,7 +65,9 @@ impl Entity for Cube {
         Cube {
             coordinates,
             id,
-            movement_amount: 3,
+            moving_up: false,
+            movement_amount_x: 1,
+            movement_amount_y: 1,
             moving_left: false
         }
     }
@@ -73,18 +77,51 @@ impl Entity for Cube {
     fn event(&mut self, world: &mut GameWorld, event: Event) {
         match event {
             Event::Tick => {
-                if self.moving_left {
-                    self.coordinates = world.coordinate_system.move_to(self.coordinates, -self.movement_amount, 0);
-                }
-                else {
-                    self.coordinates = world.coordinate_system.move_to(self.coordinates, self.movement_amount, 0);
-                }
+                let move_x = if self.moving_left {
+                    -self.movement_amount_x
+                } else {
+                    self.movement_amount_x
+                };
+                let move_y = if self.moving_up {
+                    -self.movement_amount_y
+                } else {
+                    self.movement_amount_y
+                };
+                self.coordinates = world.coordinate_system.move_to(self.coordinates, move_x, move_y);
             }
             Event::Key(KeyboardKey::Left) => {
+                if !self.moving_left {
+                    self.movement_amount_x = 0;
+                } else {
+                    self.movement_amount_x += 1;
+                }
                 self.moving_left = true;
             }
             Event::Key(KeyboardKey::Right) => {
+                if self.moving_left {
+                    self.movement_amount_x = 0;
+                } else {
+                    self.movement_amount_x += 1;
+                }
                 self.moving_left = false;
+            }
+            Event::Key(KeyboardKey::Up) => {
+                if !self.moving_up {
+                    self.movement_amount_y = 0;
+                } else {
+                    println!("Subtracting!");
+                    self.movement_amount_y += 1;
+                    println!("{}", self.movement_amount_y);
+                }
+                self.moving_up = true;
+            },
+            Event::Key(KeyboardKey::Down) => {
+                if self.moving_up {
+                    self.movement_amount_y = 0;
+                } else {
+                    self.movement_amount_y += 1;
+                }
+                self.moving_up = false;
             }
             _ => {}
         }
