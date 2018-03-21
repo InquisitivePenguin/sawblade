@@ -1,22 +1,34 @@
 extern crate sawblade;
-use self::sawblade::game::game::Game;
-use self::sawblade::game::scene::*;
-use self::sawblade::game::world::WorldState;
-use self::sawblade::game::gameobject::GameObject;
-use self::sawblade::game::gamecontroller::GameController;
-use self::sawblade::game::msg::Msg;
-use self::sawblade::game::msg::Msg::*;
+use self::sawblade::core::entity::Entity;
+use self::sawblade::controllers::*;
 use self::sawblade::graphics::texture::FinalTexture;
+use self::sawblade::core::world::World;
+use self::sawblade::core::event::Event;
+use self::sawblade::core::game::Game;
 
-
-fn custom_game_init(scene: &mut Scene, world: &WorldState) {
-    scene.spawn::<Cube>((50,50));
-    scene.spawn::<Cube>((400,400));
-    scene.spawn::<Cube>((200,200));
+struct BasicWorld {
+    cube: Vec<Cube>
 }
 
-fn game_scene() -> Scene {
-    SceneBuilder::new("Default Scene".to_string()).override_init(custom_game_init).build()
+impl BasicWorld {
+    pub fn new() -> BasicWorld {
+        BasicWorld {
+            cube: vec![]
+        }
+    }
+}
+
+impl World for BasicWorld {
+    fn init(&mut self) {
+        self.cube = vec![Cube::spawn((200,200), 1)];
+    }
+    fn event_loop(&mut self, events: Vec<Event>) -> Vec<FinalTexture> {
+        render(&mut self.cube)
+    }
+}
+
+fn world_create() -> Box<World> {
+    Box::new(BasicWorld::new())
 }
 
 struct Cube {
@@ -24,7 +36,8 @@ struct Cube {
     id: u64
 }
 
-impl GameObject for Cube {
+impl Entity for Cube {
+    type World = BasicWorld;
     fn spawn(coordinates: (u32,u32), id: u64 ) -> Cube {
         Cube {
             coordinates,
@@ -34,15 +47,17 @@ impl GameObject for Cube {
     fn get_id(&self) -> u64 {
         self.id
     }
-    fn render(&mut self) -> Option<FinalTexture> {
-        Some(FinalTexture::make_rect((50,50), self.coordinates))
+}
+
+impl Renderable for Cube {
+    fn render(&mut self) -> Option<Vec<FinalTexture>> {
+        Some(vec![FinalTexture::make_rect((100,100), self.coordinates)])
     }
 }
 
 fn main() {
     let game = Game::new("Scene with Cube".to_string(), (500,500))
-        .with_scene(game_scene)
-        .default_scene("Default Scene".to_string())
+        .with_world(world_create)
         .build();
     game.start();
 }
