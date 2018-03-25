@@ -11,12 +11,25 @@ use self::sdl2::event::Event::*;
 use std::collections::HashMap;
 use core::fps::FPSRegulator;
 use core::input::KeyboardKey;
+use graphics::texture::FinalTexture;
 
 
 #[derive(PartialEq)]
 enum GameLoopState {
     Continue,
     Exit
+}
+
+struct BlankWorld {}
+
+impl World for BlankWorld {
+    fn event_loop(&mut self, events: Vec<Event>) -> Vec<FinalTexture> {
+        vec![]
+    }
+}
+
+fn blank_world() -> Box<World> {
+    Box::new(BlankWorld {})
 }
 
 /// The helper class for generating a `Game`. Usually created by a call to `Game::new`.
@@ -42,6 +55,10 @@ impl GameBuilder {
     pub fn with_world(mut self, world_fn: fn() -> Box<World>) -> GameBuilder {
         self.world_fn = Some(world_fn);
         self
+    }
+
+    pub fn with_blank_world(mut self) -> GameBuilder {
+        self.with_world(blank_world)
     }
 
     /// This function generates a `Game` from a `GameBuilder`. Keep in mind that this will also initialize the window along with it's canvas.
