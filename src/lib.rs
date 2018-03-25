@@ -3,7 +3,7 @@
 // This should only include tests and linked modules
 pub mod core;
 pub mod graphics;
-pub mod controllers;
+pub mod components;
 
 #[cfg(test)]
 mod test {

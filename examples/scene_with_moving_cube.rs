@@ -5,7 +5,7 @@ use self::sawblade::core::event::Event;
 use self::sawblade::graphics::texture::FinalTexture;
 use self::sawblade::core::world::World;
 use self::sawblade::core::entity::Entity;
-use self::sawblade::controllers::*;
+use self::sawblade::components::*;
 use self::sawblade::core::coordinate_system::CoordinateSystem;
 use self::sawblade::core::input::KeyboardKey;
 
