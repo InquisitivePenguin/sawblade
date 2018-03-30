@@ -1,3 +1,4 @@
+extern crate rlua;
 use std;
 use core::entity::Entity;
 pub trait ScriptableEntity: Entity {
@@ -14,19 +15,27 @@ pub struct ComponentState;
 
 pub struct WorldState;
 
-pub struct ScriptEngine;
+pub struct ScriptEngine {
+    scriptable_entities: Vec<Box<ScriptableEntity>>,
+    world_state: WorldState
+}
 
 impl ScriptEngine {
-    pub fn new() {
-        unimplemented!()
+    pub fn new() -> ScriptEngine {
+        ScriptEngine {
+            scriptable_entities: vec![],
+            world_state: WorldState {}
+        }
     }
-    pub fn load_single<T>(&mut self, entity: T) where T: std::marker::Sized + ScriptableEntity {
-        unimplemented!()
+    pub fn load_single<T: 'static>(&mut self, entity: T) where T: std::marker::Sized + ScriptableEntity {
+        self.scriptable_entities.push(Box::new(entity));
     }
-    pub fn load<T>(&mut self, entities: Vec<T>) where T : std::marker::Sized + ScriptableEntity {
-        unimplemented!()
+    pub fn load<T: 'static>(&mut self, entities: Vec<T>) where T : std::marker::Sized + ScriptableEntity {
+        for entity in entities {
+            self.load_single::<T>(entity);
+        }
     }
-    pub fn apply(&mut self, world_state: WorldState) {
+    pub fn run(&mut self) {
         unimplemented!()
     }
 }

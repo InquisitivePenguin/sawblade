@@ -4,7 +4,6 @@
 pub mod core;
 pub mod graphics;
 pub mod script;
-extern crate rlua;
 
 #[cfg(test)]
 mod test {
