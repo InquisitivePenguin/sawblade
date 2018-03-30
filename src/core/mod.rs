@@ -5,3 +5,4 @@ pub mod fps;
 pub mod input;
 pub mod world;
 pub mod coordinate_system;
+pub mod utils;

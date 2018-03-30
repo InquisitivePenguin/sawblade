@@ -2,6 +2,7 @@ extern crate sdl2;
 use self::sdl2::rect::Point;
 use self::sdl2::pixels::Color;
 use self::sdl2::Sdl;
+use self::sdl2::video::FullscreenType;
 use graphics::pixel::Pixel;
 use graphics::texture::*;
 use self::sdl2::rect::Rect;
@@ -25,11 +26,26 @@ impl Window {
         }
 
     }
+
+    pub fn resize(&mut self, size: (u32,u32)) {
+        let mut window = self.canvas.window_mut();
+        window.set_size(size.0, size.1).unwrap();
+    }
+
+    pub fn fullscreen(&mut self, fullscreen_on: bool) {
+        let mut window = self.canvas.window_mut();
+        window.set_fullscreen(if fullscreen_on {
+            FullscreenType::True
+        } else {
+            FullscreenType::Desktop
+        }).unwrap();
+    }
+
     pub fn is_open(&self) -> bool {
         true
     }
 
-    pub fn draw(&mut self, pixels: &Vec<Vec<Pixel>>) {
+    pub fn draw_pixels(&mut self, pixels: &Vec<Vec<Pixel>>) {
         self.fill_blank();
         for i in pixels {
             for q in i {

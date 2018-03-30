@@ -3,7 +3,8 @@
 // This should only include tests and linked modules
 pub mod core;
 pub mod graphics;
-pub mod components;
+pub mod script;
+extern crate rlua;
 
 #[cfg(test)]
 mod test {

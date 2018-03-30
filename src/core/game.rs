@@ -12,6 +12,7 @@ use std::collections::HashMap;
 use core::fps::FPSRegulator;
 use core::input::KeyboardKey;
 use graphics::texture::FinalTexture;
+use std::ops::Deref;
 
 
 #[derive(PartialEq)]
@@ -95,7 +96,8 @@ impl GameBuilder {
             world: self.world_fn.expect("No world generation function was passed to the engine")(),
             gcontext: graphicalcontext,
             event_pump,
-            fps_reg: FPSRegulator::new(60)
+            fps_reg: FPSRegulator::new(60),
+            keys_down: vec![]
         }
     }
 }
@@ -114,7 +116,8 @@ pub struct Game {
     world: Box<World>,
     gcontext: GraphicalContext,
     event_pump: EventPump,
-    fps_reg: FPSRegulator
+    fps_reg: FPSRegulator,
+    keys_down: Vec<KeyboardKey>
 }
 
 impl Game {
@@ -171,14 +174,36 @@ impl Game {
         let mut collector = vec![];
         collector.push(Tick);
         for event in self.event_pump.poll_iter() {
-            collector.push(match event {
-                Quit { .. } => Close,
+            match event {
+                Quit {..} => collector.push(Close),
                 KeyDown {
                     keycode: key_c,
                     ..
-                } => Key(KeyboardKey::from_keycode(key_c.unwrap())),
-                _ => Unrecognized
-            });
+                } => {
+                    let key_c = KeyboardKey::from_keycode(key_c.unwrap());
+                    if self.keys_down.iter().find(|key| {
+                        key_c == key.deref().clone()
+                    }) == None {
+                        self.keys_down.push(key_c);
+                    }
+                },
+                KeyUp {
+                    keycode: key_c,
+                    ..
+                } => {
+                    let key_c = KeyboardKey::from_keycode(key_c.unwrap());
+                    let index = {
+                        self.keys_down.iter().position(|ref key| key.deref().clone() == key_c).unwrap()
+                    };
+                    self.keys_down.remove(index);
+                },
+                _ => {
+                    collector.push(Unrecognized);
+                }
+            }
+        }
+        for key in self.keys_down.clone() {
+            collector.push(Key(key));
         }
         collector
     }
