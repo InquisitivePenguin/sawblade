@@ -1,47 +1,10 @@
 # Sawblade
 
-Sawblade is a game engine written in Rust, with a focus on speed, safety, and modularity. It allows you to build your game up from the
-lowest level, but still abstract and simplify what would otherwise be boilerplate with a plethora of helper functions and classes. It allows this by supplying many macros for ease of use and abstraction, as well as many helper classes.
+Sawblade is a game engine written in Rust, with a focus on speed, safety, and modularity. It provides easy utilities for writing your game logic in Lua
+and your low-level stuff in Rust.
 
-Here's a demo of it in action:
-```rust
-#[macro_use]
-extern crate sawblade;
-use sawblade::core::{Game, World, Entity, Event, KeyboardKey};
-use sawblade::controllers::physics::{VelocityController, VelocityScheduler};
-use sawblade::graphics::{FinalTexture};
-use sawblade::utils::collision::{is_point_overlapping_with_rect};
-sawblade_entity_struct!(Cube {
-  controllers {
-    velocity_controller: VelocityController
-  }
-  fields {
-    color: (u32, u32, u32)
-  }
-  world = GameWorld
-});
-  
-sawblade_world_struct!(GameWorld {
-  coordinate_system has bounds (500,500)
-});
-impl Entity for Cube {
-  fn event(&mut self, world: GameWorld, event: Event) {
-    pass_event!(self.velocity_controller, event);
-    match event {
-      Tick => {
-        
-      }
-    }
-  }
-}
-impl GameWorld {
-  sawblade_world_handle_event!(
-    Tick => {
-      
-    }
-  );
-}
-```
+Sawblade works by giving you the pieces to easily build a standard 2D game, but you can use your own pieces if you want. For example, we
+make it easy to write most of your state-management code in Lua, but also allow you to write everything in Rust if you want.
 
 ## Installing
 Clone this repository, then run `cargo build` to build the library.

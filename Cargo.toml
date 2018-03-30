@@ -7,6 +7,7 @@ description = "A modular, fast, customizable game engine that allows developers 
 [dependencies]
 json = "0.11.13"
 rand = "0.4"
+rlua = "0.13.0"
 [dependencies.sdl2]
 version = "0.31.0"
 default-features = false
