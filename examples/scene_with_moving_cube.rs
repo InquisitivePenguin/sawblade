@@ -82,16 +82,16 @@ impl Entity for Cube {
                 let move_y = self.movement_amount_y as i32;
                 self.coordinates = CoordinateSystem::move_to(self.coordinates, move_x, move_y);
             }
-            Message::Input(Event::Key(KeyboardKey::Left)) => {
+            Message::Input(Event::Key(KeyboardKey::Left)) | Message::Input(Event::Key(KeyboardKey::A)) => {
                 self.movement_amount_x -= 1.0;
             }
-            Message::Input(Event::Key(KeyboardKey::Right)) => {
+            Message::Input(Event::Key(KeyboardKey::Right))| Message::Input(Event::Key(KeyboardKey::D)) => {
                 self.movement_amount_x += 1.0;
             }
-            Message::Input(Event::Key(KeyboardKey::Up)) => {
+            Message::Input(Event::Key(KeyboardKey::Up)) | Message::Input(Event::Key(KeyboardKey::W)) => {
                 self.movement_amount_y -= 1.0;
             },
-            Message::Input(Event::Key(KeyboardKey::Down)) => {
+            Message::Input(Event::Key(KeyboardKey::Down)) | Message::Input(Event::Key(KeyboardKey::S)) => {
                 self.movement_amount_y += 1.0;
             }
             _ => {}
