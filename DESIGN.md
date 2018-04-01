@@ -1,14 +1,35 @@
-In Sawblade, there is exactly one World, which contains all of what happens inside the game. The World is populated with Entities, which are objects
-with logic and event handling added to them. On each iteration, Sawblade handles input fetching and then pipes those inputs to the World. The World creates custom events and
-triggers based on the input, and then activates the scripting engine. This runs the scripts for each Entity current in the scene, and also runs
-for each of there respective components. It then applies the output to each of the Entities. Then the world collects the textures to be rendered to the screen,
-and then passes that back to Sawblade, which then renders everything.
+Sawblade revolves around an ECS (entity-component-system) model and a immutable
+world state. On each 'tick' of the engine, Sawblade captures all input and then
+relays those inputs to the World class it controls. The World is a 
+container for everything that happens inside the game. This is _not_ the world
+state. A World typically contains a script engine, custom properties,
+and, of course, the world state.
 
-Components are entirely Lua-based.
+The WorldState is a custom-defined class that implements the ToLua trait
+so that it can be turned into a Lua object. It is passed to the scripting engine
+on each tick.
 
-Inside Lua, each entity class has an event handling script and also
-data linked with the Rust entity. The components of this entity are stored
-in here as well.
+The scripting engine is the 'core' of Sawblade. It manages all of the scripts,
+systems, and objects in the scene.
+
+Entities are custom classes that have a script attached to them. That
+script executes each tick and the entity then pulls the data from that script
+to update itself. The script has certain global variables set,
+like the world state and the events/messages.
+
+Systems are unique, global objects that can operate on multiple entities before
+or after the entities update. Usually they act on entities that carry
+certain components. Entities define their components via the `get_components`
+function.
+
+Systems can also send 'messages'. A message is a user-defined event
+that has some significance to an entity. Messages are helpful when
+communicating with objects in an abstract way.
+
+Systems can also recieve messages! Entities send messages by setting
+the variable `_messages` to a list of string pairs. They will be given
+to the System on the next tick.
+
 
 Let's see an example of this.
 
@@ -28,11 +49,16 @@ impl ScriptableEntity for SomeRect {
   fn get_identifier(&self) -> String {
     "HelloText".to_string()
   }
+  fn inject(&self) -> Vec<(String, String)> {
+    vec![
+      ("color", String::from(self.color))
+    ]
+  }
   fn get_entity_script(&self) -> Script {
     Script::from_file("hellotext.lua").unwrap()
   }
-  fn apply_state(&mut self, state: EntityState) {
-    self.color = state.extract::<u32>("color").unwrap();
+  fn apply_state(&mut self, state: ScriptState) {
+    self.color = state.get::<u32>("color").unwrap();
   }
 }
 impl Entity for SomeRect {
@@ -48,8 +74,7 @@ impl Entity for SomeRect {
 With a world named GameWorld:
 ```rust
 pub struct GameWorld {
-  engine: ScriptEngine,
-  message_handler: MessageHandler
+  engine: ScriptEngine
 }
 
 impl World for GameWorld {
@@ -57,13 +82,7 @@ impl World for GameWorld {
     engine.load_single(SomeRect::new())
   }
   fn event_loop(&mut self, events: Vec<Event>) -> Vec<FinalTexture> {
-    self.message_handler.increment_tick();
-    let messages = EventManager::generate_from_events(events).and_custom_script(
-    |events: Vec<Event>| {
-      message_handler.this_tick()
-    }
-    );
-    self.engine.run(messages, &mut self.message_handler);
+    self.engine.run(Message::from_events(events));
     self.engine.render()
   }
 }
@@ -71,18 +90,7 @@ impl World for GameWorld {
 
 With a Lua script named `somerect.lua`:
 ```lua
-SomeRect = {}
-
-function SomeRect:new()
-  local t = setmetatable({}, { __index: SomeRect})
-  t.color = 0
-  return t
-end
-
-function SomeRect:on_msg(message)
-  if message == Message("Tick")
-    self.color = self.color + 1
-end
+color += 1
 ```
 
 This code is what would compose this game.
