@@ -10,25 +10,21 @@ use core::entity::Entity;
 pub trait ScriptableEntity: Entity {
     fn get_identifier(&self) -> String;
     fn get_entity_script(&self) -> Script;
-    fn apply_state(&mut self, state: EntityState);
+    fn apply_state(&mut self, state: ScriptState);
 }
 
 pub struct Script {
     lua_context: Lua
 }
-/// This represents the state of a Entity class after running all events and systems for that tick.
-pub struct EntityState;
-
-/// This represents the state of a Component class after running all events
-pub struct ComponentState;
-
-/// This represents the state of the World, which is passed around inside Lua
-pub struct WorldState;
+/// This represents the state of a Script class after running all events and systems for that tick.
+pub struct ScriptState<'script> {
+    state_table: Table<'script>
+}
 
 
 pub struct ScriptEngine {
     scriptable_entities: Vec<Box<ScriptableEntity>>,
-    world_state: WorldState
+    world: Script
 }
 
 impl Script {
@@ -45,9 +41,19 @@ impl Script {
         file.read_to_string(&mut f_contents).expect(("Could not read from script file: ".to_string() + filename.as_str()).as_str());
         Script::from_string(f_contents)
     }
-    pub fn get_var<'lua, T: FromLua<'lua>>(&'lua self, var_name: String) -> T {
-        let globals = self.lua_context.globals();
-        globals.get::<_, T>(var_name).unwrap()
+    pub fn get_global_vars(&self) -> Table {
+        self.lua_context.globals()
+    }
+}
+
+impl<'script> ScriptState<'script> {
+    pub fn from_script(script: &'script Script) -> ScriptState<'script> {
+        ScriptState {
+            state_table: script.get_global_vars()
+        }
+    }
+    pub fn get_var<'state, T: FromLua<'state>>(&'state self, var_name: String) -> T {
+        self.state_table.get::<_, T>(var_name).expect("Variable not found in ScriptState")
     }
 }
 
@@ -55,7 +61,7 @@ impl ScriptEngine {
     pub fn new() -> ScriptEngine {
         ScriptEngine {
             scriptable_entities: vec![],
-            world_state: WorldState {}
+            world: Script::from_string("".to_string())
         }
     }
     pub fn load_single<T: 'static>(&mut self, entity: T) where T: std::marker::Sized + ScriptableEntity {
