@@ -1,10 +1,10 @@
 # Sawblade
 
-Sawblade is a game engine written in Rust, with a focus on speed, safety, and modularity. It provides easy utilities for writing your game logic in Lua
-and your low-level stuff in Rust.
+Sawblade is a game engine written in Rust, with a focus on speed, safety, and modularity. It operates on a seperated systems principle, which means that ideally, changing any code in a class or system doesn't affect other systems unless you want it to.
 
-Sawblade works by giving you the pieces to easily build a standard 2D game, but you can use your own pieces if you want. For example, we
-make it easy to write most of your state-management code in Lua, but also allow you to write everything in Rust if you want.
+Sawblade has a hierarchal structure of `Application -> Controller -> System -> Whatever you want` that dictates who can modify what. Each layer exposes very little to the layer above them, keeping systems seperated.
+
+Sawblade does not restrict you to any design method. If you want, you can scrap Controllers altogether and directly return textures to the screen! But it provides built-in support for Lua scripting, ECS design, shaders, powerful AI control, and networking.
 
 ## Installing
 Clone this repository, then run `cargo build` to build the library.
