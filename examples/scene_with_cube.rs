@@ -1,5 +1,5 @@
 extern crate sawblade;
-use self::sawblade::core::entity::Entity;
+use self::sawblade::core::gameobject::Entity;
 use self::sawblade::controllers::*;
 use self::sawblade::graphics::texture::FinalTexture;
 use self::sawblade::core::world::World;

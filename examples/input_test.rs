@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate sawblade;
 use sawblade::core::world::World;
-use sawblade::core::entity::Entity;
+use sawblade::core::gameobject::Entity;
 use sawblade::core::input::KeyboardKey;
 use sawblade::core::event::Event;
 use sawblade::graphics::texture::FinalTexture;

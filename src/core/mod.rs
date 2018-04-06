@@ -1,9 +1,6 @@
 pub mod game;
-pub mod entity;
-pub mod event;
+pub mod gameobject;
 pub mod fps;
 pub mod input;
-pub mod world;
-pub mod coordinate_system;
-pub mod utils;
+pub mod application;
 pub mod system;

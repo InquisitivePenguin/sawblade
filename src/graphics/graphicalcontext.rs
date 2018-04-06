@@ -1,5 +1,4 @@
 extern crate sdl2;
-
 use self::sdl2::render::TextureCreator;
 use self::sdl2::surface::Surface;
 use self::sdl2::render::Texture;

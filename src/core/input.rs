@@ -1,7 +1,14 @@
 extern crate sdl2;
 use self::sdl2::keyboard::Keycode;
 use self::sdl2::keyboard::Keycode::*;
-use std::mem;
+
+pub struct Input;
+
+impl Input {
+    pub fn new() -> Input {
+        unimplemented!()
+    }
+}
 // Taken from the SDL2 Rust binding keyboard mapping
 #[derive(PartialEq, Clone, Debug)]
 #[repr(u32)]

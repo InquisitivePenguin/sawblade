@@ -3,8 +3,8 @@ use self::rlua::{Lua, UserData, FromLua, Table, Value, Integer, Number};
 use std;
 use std::fs::File;
 use std::io::Read;
-use core::entity::Entity;
 use core::system::System;
+use core::gameobject::GameObject;
 
 /// This is a enum that represents a type implemented in Lua. This is primarily used in the ScriptableEntity::inject() function.
 #[derive(Clone, Debug)]
@@ -30,7 +30,7 @@ impl LuaType {
 /// This is a link between an Entity and it's Lua class inside the scripting machine.
 /// When the scripting machine runs events and then applies the components for the entity,
 /// the values are passed back in the form of
-pub trait ScriptableEntity: Entity {
+pub trait ScriptableEntity: GameObject {
     fn get_entity_script(&self) -> Script;
 
     fn inject(&self) -> Vec<(String, LuaType)>;
@@ -50,8 +50,8 @@ pub struct ScriptState<'script> {
 /// This is the central manager for the World, which handles all messages, entities, and systems. It runs entity scripts and executes
 /// system events.
 pub struct ScriptEngine<W> {
-    scriptable_entities: Vec<Box<ScriptableEntity<WorldState=W>>>,
-    systems: Vec<Box<System<WorldState=W>>>,
+    scriptable_entities: Vec<Box<ScriptableEntity>>,
+    systems: Vec<Box<System<GameState=W>>>,
     world_state: W
 }
 
@@ -99,16 +99,17 @@ impl<W> ScriptEngine<W> {
             world_state: init_state
         }
     }
-    pub fn load_single<T: 'static>(&mut self, entity: T) where T: std::marker::Sized + ScriptableEntity<WorldState=W> {
+    pub fn load_single<T: 'static>(&mut self, entity: T) where T: std::marker::Sized + ScriptableEntity {
         self.scriptable_entities.push(Box::new(entity));
     }
-    pub fn load<T: 'static>(&mut self, entities: Vec<T>) where T : std::marker::Sized + ScriptableEntity<WorldState=W> {
+    pub fn load<T: 'static>(&mut self, entities: Vec<T>) where T : std::marker::Sized + ScriptableEntity {
         for entity in entities {
             self.load_single::<T>(entity);
         }
     }
     pub fn run(&mut self) {
         // 1. Run entity scripts
+        /*
         for mut entity in &mut self.scriptable_entities {
             let mut entity_script = entity.get_entity_script();
             let injection_values = entity.inject();
@@ -119,6 +120,7 @@ impl<W> ScriptEngine<W> {
                 entity_script.set_var(value.0, Value::Nil);
             }
         }
+        */
         unimplemented!()
     }
 }

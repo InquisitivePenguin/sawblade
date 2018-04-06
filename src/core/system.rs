@@ -1,6 +1,5 @@
-use core::entity::Entity;
-use core::utils::Message;
+use core::input::Input;
 pub trait System {
-    type WorldState;
-    fn tick(&mut self, messages: Vec<Message>, entities: Vec<Box<Entity<WorldState=Self::WorldState>>>, state: Self::WorldState);
+    type GameState;
+    fn update(&mut self, input: &Input,state: &mut Self::GameState);
 }

@@ -1,36 +1,19 @@
 use graphics::graphicalcontext::GraphicalContext;
 extern crate sdl2;
-use self::GameLoopState::*;
-use core::world::World;
-use core::event::Event;
-use core::event::Event::*;
 use self::sdl2::Sdl;
 use self::sdl2::EventPump;
 use core::input::KeyboardKey::*;
 use self::sdl2::event::Event::*;
-use std::collections::HashMap;
 use core::fps::FPSRegulator;
 use core::input::KeyboardKey;
-use graphics::texture::FinalTexture;
-use std::ops::Deref;
+use core::application::Application;
+use core::input::Input;
 
 
 #[derive(PartialEq)]
-enum GameLoopState {
+pub enum GameStatus {
     Continue,
     Exit
-}
-
-struct BlankWorld {}
-
-impl World for BlankWorld {
-    fn event_loop(&mut self, events: Vec<Event>) -> Vec<FinalTexture> {
-        vec![]
-    }
-}
-
-fn blank_world() -> Box<World> {
-    Box::new(BlankWorld {})
 }
 
 /// The helper class for generating a `Game`. Usually created by a call to `Game::new`.
@@ -45,21 +28,17 @@ fn blank_world() -> Box<World> {
 pub struct GameBuilder {
     g_context_settings: Option<((u32,u32), String)>,
     window_settings: (String, (u32,u32)),
-    world_fn: Option<fn() -> Box<World>>
+    app_fn: Option<fn() -> Box<Application>>
 }
 
 impl GameBuilder {
     // Modifier functions go here
 
-    /// This function sets the world
+    /// This function sets the application
 
-    pub fn with_world(mut self, world_fn: fn() -> Box<World>) -> GameBuilder {
-        self.world_fn = Some(world_fn);
+    pub fn with_app(mut self, app_fn: fn() -> Box<Application>) -> GameBuilder {
+        self.app_fn = Some(app_fn);
         self
-    }
-
-    pub fn with_blank_world(mut self) -> GameBuilder {
-        self.with_world(blank_world)
     }
 
     /// This function generates a `Game` from a `GameBuilder`. Keep in mind that this will also initialize the window along with it's canvas.
@@ -93,11 +72,10 @@ impl GameBuilder {
         let event_pump = (&context).event_pump().unwrap();
         Game {
             sdl_context: context,
-            world: self.world_fn.expect("No world generation function was passed to the engine")(),
+            app_layer: self.app_fn.expect("No world generation function was passed to the engine")(),
             gcontext: graphicalcontext,
             event_pump,
             fps_reg: FPSRegulator::new(60),
-            keys_down: vec![]
         }
     }
 }
@@ -113,11 +91,10 @@ impl GameBuilder {
 
 pub struct Game {
     sdl_context: Sdl,
-    world: Box<World>,
+    app_layer: Box<Application>,
     gcontext: GraphicalContext,
     event_pump: EventPump,
-    fps_reg: FPSRegulator,
-    keys_down: Vec<KeyboardKey>
+    fps_reg: FPSRegulator
 }
 
 impl Game {
@@ -135,84 +112,19 @@ impl Game {
         GameBuilder {
             window_settings: (title,res),
             g_context_settings: None,
-            world_fn: None
+            app_fn: None
         }
     }
     /// This function starts the game. It should probably be called directly after building the `Game` object.
 
     pub fn start(mut self) {
-        self.world.init();
+        self.app_layer.init();
         loop {
-            let state = (&mut self).game_cycle();
-            if state == Exit {
+            let state = self.app_layer.game_loop(&mut self.gcontext, Input {});
+            if state == GameStatus::Exit {
                 break
             }
         }
-    }
-
-    fn game_cycle(&mut self) -> GameLoopState {
-        self.fps_reg.start();
-        let collected_events = self.collect_events();
-        let collected_events_duplicate = collected_events.clone();
-        for event in collected_events {
-            if event == Key(Escape) || event == Close {
-                return Exit;
-            }
-        }
-        let textures = self.world.as_mut().event_loop(collected_events_duplicate);
-        self.gcontext.draw_textures(textures);
-        self.fps_reg.wait();
-        Continue
-    }
-
-    fn collect_events(&mut self) -> Vec<Event> {
-        let mut collector = vec![];
-        collector.append(&mut self.event_pump_retrieve());
-        collector
-    }
-    fn event_pump_retrieve(&mut self) -> Vec<Event> {
-        let mut collector = vec![];
-        collector.push(Tick);
-        for event in self.event_pump.poll_iter() {
-            match event {
-                Quit {..} => collector.push(Close),
-                KeyDown {
-                    keycode: key_c,
-                    ..
-                } => {
-                    let key_c = KeyboardKey::from_keycode(key_c.unwrap());
-                    if self.keys_down.iter().find(|key| {
-                        key_c == key.deref().clone()
-                    }) == None {
-                        self.keys_down.push(key_c);
-                    }
-                },
-                KeyUp {
-                    keycode: key_c,
-                    ..
-                } => {
-                    let key_c = KeyboardKey::from_keycode(key_c.unwrap());
-                    let index = {
-                        self.keys_down.iter().position(|ref key| key.deref().clone() == key_c).unwrap()
-                    };
-                    self.keys_down.remove(index);
-                },
-                _ => {
-                    collector.push(Unrecognized);
-                }
-            }
-        }
-        for key in self.keys_down.clone() {
-            collector.push(Key(key));
-        }
-        collector
-    }
-    /*
-        Testing functions go here
-    */
-    #[cfg(test)]
-    pub fn test_window_open(&self) -> bool {
-        self.gcontext.wind.is_open()
     }
 }
 

@@ -3,7 +3,6 @@ use self::sdl2::rect::Point;
 use self::sdl2::pixels::Color;
 use self::sdl2::Sdl;
 use self::sdl2::video::FullscreenType;
-use graphics::pixel::Pixel;
 use graphics::texture::*;
 use self::sdl2::rect::Rect;
 
@@ -43,17 +42,6 @@ impl Window {
 
     pub fn is_open(&self) -> bool {
         true
-    }
-
-    pub fn draw_pixels(&mut self, pixels: &Vec<Vec<Pixel>>) {
-        self.fill_blank();
-        for i in pixels {
-            for q in i {
-                self.canvas.set_draw_color(Color::RGB(q.rbg.0,q.rbg.1,q.rbg.2));
-                self.canvas.draw_point::<Point>(q.to_sdl_point()).expect("Sawblade Error: could not draw to window successfully");
-            }
-        }
-        self.canvas.present();
     }
 
     pub fn draw_texture(&mut self, texture: FinalTexture) {
