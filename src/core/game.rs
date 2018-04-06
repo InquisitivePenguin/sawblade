@@ -120,10 +120,12 @@ impl Game {
     pub fn start(mut self) {
         self.app_layer.init();
         loop {
+            self.fps_reg.start();
             let state = self.app_layer.game_loop(&mut self.gcontext, Input {});
             if state == GameStatus::Exit {
                 break
             }
+            self.fps_reg.wait();
         }
     }
 }
