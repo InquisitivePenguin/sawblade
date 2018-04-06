@@ -1,12 +1,14 @@
-pub struct CoordinateSystem {
+/// This is a helper class for coordinate systems. It acts as a container for coordinate system data and provides
+/// useful functions.
+pub struct CoordinateSystemData {
     max_x: u64,
     max_y: u64,
     scale: u32
 }
 
-impl CoordinateSystem {
-    pub fn new(max_x: u64, max_y: u64, scale: u32) -> CoordinateSystem {
-        CoordinateSystem {
+impl CoordinateSystemData {
+    pub fn new(max_x: u64, max_y: u64, scale: u32) -> CoordinateSystemData {
+        CoordinateSystemData {
             max_x,
             max_y,
             scale
@@ -24,3 +26,10 @@ impl CoordinateSystem {
         (x as u32,y as u32)
     }
 }
+
+/// This is a System that can easily be added to a ScriptEngine for handling of movement. It receives messages that move entities around
+/// safely.
+struct CoordinateSystem {
+  data: CoordinateSystemData
+}
+
