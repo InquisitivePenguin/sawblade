@@ -1,41 +1,20 @@
-// FinalTexture is a single image that represents a raw texture to be rendered to the screen
-#[derive(Debug)]
-pub struct FinalTexture {
-    scene_coords: (u32,u32),
-    rotation_degrees: f32,
-    texture: SawbladeTexture
+use core::math::Vector;
+/// This structure is not yet implemented
+pub struct SpriteMap;
+/// A container class for TextureComponents that provide helpful utilities for rendering
+pub struct Texture {
+    pub components: Vec<TextureComponent>,
+    pub relative_origin: Vector
 }
-
-impl FinalTexture {
-    pub fn make_rect(size: (u32,u32), coordinates: (u32,u32)) -> FinalTexture {
-        FinalTexture {
-            scene_coords: coordinates,
-            rotation_degrees: 0.0,
-            texture: SawbladeTexture::Rect(size.0,size.1)
-        }
-    }
-    pub fn make_circle(radius: u32, center_coordinates: (u32,u32)) -> FinalTexture {
-        FinalTexture {
-            scene_coords: center_coordinates,
-            rotation_degrees: 0.0,
-            texture: SawbladeTexture::Circle(radius)
-        }
-    }
-    pub fn with_rotation(mut self, rotation_in_degrees: f32) -> FinalTexture {
-        self.rotation_degrees = rotation_in_degrees;
-        self
-    }
-    pub fn get_coordinates(&self) -> (u32,u32) {
-        self.scene_coords
-    }
-    pub fn get_texture(&self) -> SawbladeTexture {
-        self.texture
-    }
+/// The TextureComponent represents a piece of a texture that is rendered to the screen
+pub enum TextureComponent {
+    BasicShape(Shape, Color),
+    Image(String)
 }
-
-#[derive(Copy, Clone, Debug)]
-pub enum SawbladeTexture {
-    Rect(u32,u32),
-    Circle(u32),
-    FromFile(&'static str)
+pub enum Shape {
+    Rectangle(Vector),
+    Circle(u64),
+    Triangle(Vector, Vector, Vector)
 }
+// Represents the color of a shape
+type Color = (u8,u8,u8);

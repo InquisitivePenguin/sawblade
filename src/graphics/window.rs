@@ -44,12 +44,18 @@ impl Window {
         true
     }
 
-    pub fn draw_texture(&mut self, texture: FinalTexture) {
+    pub fn draw_texture(&mut self, texture: Texture) {
         //let texture_creator = self.canvas.texture_creator();
-        match texture.get_texture() {
-            SawbladeTexture::Rect(width, height) => {
-                self.canvas.set_draw_color(Color::RGB(255,0,255));
-                let rect = Rect::new(texture.get_coordinates().0 as i32, texture.get_coordinates().1 as i32, width, height);
+        if texture.components.len() == 0 {
+            return;
+        }
+        match texture.components[0] {
+            TextureComponent::BasicShape(Shape::Rectangle(bounds),color) => {
+                self.canvas.set_draw_color(Color::RGB(color.0, color.1, color.2));
+                let rect = Rect::new(texture.relative_origin.x_i32(),
+                                     texture.relative_origin.y_i32(),
+                                     bounds.x_u32(),
+                                     bounds.y_u32());
                 self.canvas.fill_rect(rect).expect("Could not draw rectangle to SDL2 canvas");
             },
             /*

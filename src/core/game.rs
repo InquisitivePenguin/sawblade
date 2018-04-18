@@ -34,7 +34,8 @@ pub struct GameBuilder {
 impl GameBuilder {
     // Modifier functions go here
 
-    /// This function sets the application
+    /// This function sets the application for the Game. The function supplied will be activated on the start of the game
+    /// to generate the global Application.
 
     pub fn with_app(mut self, app_fn: fn() -> Box<Application>) -> GameBuilder {
         self.app_fn = Some(app_fn);
@@ -80,14 +81,10 @@ impl GameBuilder {
     }
 }
 
-/// Central entry point for any Sawblade game.
-/// This stores all the components nessecary to run the game, including the graphical layer, the world state, and the
-/// event handler.
-///
-/// This also abstracts many internal components of the system. The event handling, central game loop,
-/// FPS regulation, and other boilerplate things you would probably write as a part of a game engine
-/// are abstracted away from you. Though not currently implemented, it will become possible to override these
-/// things for more customization.
+/// Primary entry point for all Sawblade-powered games.
+/// The main purpose of the Game class is to abstract a lot of the FPS regulation,
+/// graphics management, and other stuff nobody wants to write, leaving you to write
+/// your code!
 
 pub struct Game {
     sdl_context: Sdl,
@@ -106,7 +103,6 @@ impl Game {
     /// ```
     /// use sawblade::game::game::Game;
     /// let game_builder = Game::new("My game".to_string(), (1000,1000));
-    /// let game = game_builder.with_blank_scene().build();
     /// ```
     pub fn new(title:String, res: (u32,u32)) -> GameBuilder {
         GameBuilder {
@@ -115,12 +111,13 @@ impl Game {
             app_fn: None
         }
     }
-    /// This function starts the game. It should probably be called directly after building the `Game` object.
+    /// This function initiates the Application and begins the game loop.
 
     pub fn start(mut self) {
         self.app_layer.init();
         loop {
             self.fps_reg.start();
+            for event in self.event_pump.poll_event() {}
             let state = self.app_layer.game_loop(&mut self.gcontext, Input {});
             if state == GameStatus::Exit {
                 break

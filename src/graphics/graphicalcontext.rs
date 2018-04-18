@@ -1,7 +1,7 @@
 extern crate sdl2;
 use self::sdl2::render::TextureCreator;
 use self::sdl2::surface::Surface;
-use self::sdl2::render::Texture;
+use self::sdl2::render;
 use self::sdl2::Sdl;
 use graphics::window::Window;
 use std::collections::HashMap;
@@ -10,7 +10,7 @@ use graphics::texture::*;
 pub struct GraphicalContext {
     pub wind: Window,
     texture_generator: TextureCreator<self::sdl2::video::WindowContext>,
-    texture_storage: HashMap<String, Texture>
+    texture_storage: HashMap<String, render::Texture>
 }
 
 impl GraphicalContext {
@@ -29,7 +29,7 @@ impl GraphicalContext {
         self.texture_storage.insert(texture_name, n_texture);
     }
 
-    pub fn borrow_texture(&mut self, texture_name: String) -> Option<&Texture> {
+    pub fn borrow_texture(&mut self, texture_name: String) -> Option<&render::Texture> {
         if self.texture_storage.contains_key(texture_name.as_str()) {
             Some(&self.texture_storage[texture_name.as_str()])
         } else {
@@ -46,11 +46,15 @@ impl GraphicalContext {
         self.wind.close();
     }
 
-    pub fn draw_textures(&mut self, textures: Vec<FinalTexture>) {
+    pub fn draw_textures(&mut self, textures: Vec<Texture>) {
         self.wind.fill_blank();
         for texture in textures {
             self.wind.draw_texture(texture);
         }
+        self.wind.update();
+    }
+    pub fn refresh(&mut self) {
+        self.wind.fill_blank();
         self.wind.update();
     }
 }
