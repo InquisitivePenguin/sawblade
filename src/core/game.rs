@@ -117,8 +117,7 @@ impl Game {
         self.app_layer.init();
         loop {
             self.fps_reg.start();
-            for event in self.event_pump.poll_event() {}
-            let state = self.app_layer.game_loop(&mut self.gcontext, Input {});
+            let state = self.app_layer.game_loop(&mut self.gcontext, self.event_pump.poll_iter().into());
             if state == GameStatus::Exit {
                 break
             }

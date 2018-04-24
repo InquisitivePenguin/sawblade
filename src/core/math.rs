@@ -29,3 +29,12 @@ impl Vector {
         self.y as i32
     }
 }
+
+impl From<(u32,u32)> for Vector {
+    fn from(tuple: (u32,u32)) -> Vector {
+        Vector {
+            x: tuple.0.into(),
+            y: tuple.1.into()
+        }
+    }
+}

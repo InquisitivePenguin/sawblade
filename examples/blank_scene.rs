@@ -8,9 +8,13 @@ struct GameApp;
 
 impl Application for GameApp {
     fn init(&mut self) {}
-    fn game_loop(&mut self, _gc: &mut GraphicalContext, _in: Input) -> GameStatus {
-        _gc.refresh();
-        GameStatus::Continue
+    fn game_loop(&mut self, gc: &mut GraphicalContext, input: Input) -> GameStatus {
+        gc.refresh();
+        if input.should_quit() {
+            GameStatus::Exit
+        } else {
+            GameStatus::Continue
+        }
     }
 }
 

@@ -47,13 +47,14 @@ impl GraphicalContext {
     }
 
     pub fn draw_textures(&mut self, textures: Vec<Texture>) {
-        self.wind.fill_blank();
         for texture in textures {
             self.wind.draw_texture(texture);
         }
+    }
+    pub fn update(&mut self) {
         self.wind.update();
     }
-    pub fn refresh(&mut self) {
+    pub fn clear(&mut self) {
         self.wind.fill_blank();
         self.wind.update();
     }

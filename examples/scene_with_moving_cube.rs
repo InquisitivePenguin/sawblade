@@ -1,18 +1,16 @@
-#[macro_use]
 extern crate sawblade;
 use self::sawblade::core::game::Game;
-use self::sawblade::core::event::Event;
-use self::sawblade::graphics::texture::FinalTexture;
-use self::sawblade::core::world::World;
-use self::sawblade::core::gameobject::Entity;
-use self::sawblade::core::coordinate_system::CoordinateSystem;
+use self::sawblade::core::application::Application;
 use self::sawblade::core::input::KeyboardKey;
-use self::sawblade::core::utils::Message;
-use self::sawblade::graphics::utils::render;
+use self::sawblade::core::input::Input;
+use self::sawblade::graphics::graphicalcontext::GraphicalContext;
+use self::sawblade::core::game::GameStatus;
+use self::sawblade::core::system::System;
+use self::sawblade::graphics::texture::*;
 
-fn build_world() -> Box<World> {
+fn make_app() -> Box<Application> {
     Box::new(
-        GameWorld::new()
+        GameApplication::new()
     )
 }
 
@@ -24,31 +22,60 @@ fn decay_velocity(x: f32, y: f32) -> (f32, f32) {
     (new_x, new_y)
 }
 
-struct GameWorld {
-    cubes: Vec<Cube>,
-    pub coordinate_system: CoordinateSystem
+struct GameState {
+    cube: Cube
 }
 
-impl GameWorld {
-    pub fn new() -> GameWorld {
-        GameWorld {
-            cubes: vec![],
-            coordinate_system: CoordinateSystem::new(500, 500, 1)
+struct GameApplication {
+    state: GameState,
+    cube_system: CubeMovementSystem,
+}
+
+struct CubeMovementSystem;
+
+impl GameApplication {
+    pub fn new() -> GameApplication {
+        GameApplication {
+            state: GameState {
+                cube: Cube::new((100,100))
+            },
+            cube_system: CubeMovementSystem {}
         }
     }
 }
 
-impl World for GameWorld {
+impl Application for GameApplication {
     fn init(&mut self) {
-        self.cubes.push(Cube::new((100,100)));
     }
-    fn event_loop(&mut self, events: Vec<Event>) -> Vec<FinalTexture> {
-        for mut cube in &mut self.cubes {
-            for event in &events {
-                cube.handle_msg(Message::from(event.clone()));
+    fn game_loop(&mut self, graphical_context: &mut GraphicalContext, input: Input) -> GameStatus {
+        graphical_context.clear();
+        self.cube_system.update(&input, &mut self.state);
+        // Render
+        graphical_context.draw_textures(vec![
+            Texture {
+                components: vec![
+                    TextureComponent::BasicShape(
+                        Shape::Rectangle(
+                            (50,50).into()
+                        ),
+                        (255,255,255)
+                    )
+                ],
+                relative_origin: self.state.cube.coordinates.into(),
             }
+        ]);
+        graphical_context.update();
+        if input.should_quit() {
+            GameStatus::Exit
+        } else {
+            GameStatus::Continue
         }
-        render(self.cubes.as_mut())
+    }
+}
+
+impl System for CubeMovementSystem {
+    type GameState = GameState;
+    fn update(&mut self, input: &Input, state: &mut GameState) {
     }
 }
 
@@ -68,42 +95,6 @@ impl Cube {
     }
 }
 
-impl Entity for Cube {
-    fn get_id(&self) -> u64 {
-        0
-    }
-    fn handle_msg(&mut self, msg: Message) {
-        match msg {
-            Message::Input(Event::Tick) => {
-                let new_velocities = decay_velocity(self.movement_amount_x, self.movement_amount_y);
-                self.movement_amount_x = new_velocities.0;
-                self.movement_amount_y = new_velocities.1;
-                let move_x = self.movement_amount_x as i32;
-                let move_y = self.movement_amount_y as i32;
-                self.coordinates = CoordinateSystem::move_to(self.coordinates, move_x, move_y);
-            }
-            Message::Input(Event::Key(KeyboardKey::Left)) | Message::Input(Event::Key(KeyboardKey::A)) => {
-                self.movement_amount_x -= 1.0;
-            }
-            Message::Input(Event::Key(KeyboardKey::Right))| Message::Input(Event::Key(KeyboardKey::D)) => {
-                self.movement_amount_x += 1.0;
-            }
-            Message::Input(Event::Key(KeyboardKey::Up)) | Message::Input(Event::Key(KeyboardKey::W)) => {
-                self.movement_amount_y -= 1.0;
-            },
-            Message::Input(Event::Key(KeyboardKey::Down)) | Message::Input(Event::Key(KeyboardKey::S)) => {
-                self.movement_amount_y += 1.0;
-            }
-            _ => {}
-        }
-    }
-    fn render(&mut self) -> Vec<FinalTexture> {
-            vec![
-                FinalTexture::make_rect((50,50), self.coordinates)
-            ]
-    }
-}
-
 fn main() {
-    sawblade_run_world!(build_world, "Scene with Cube", (500,500));
+    Game::new("".to_string(), (1000,1000)).with_app(make_app).build().start();
 }

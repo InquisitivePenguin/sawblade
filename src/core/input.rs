@@ -1,16 +1,60 @@
-extern crate sdl2;
-use self::sdl2::keyboard::Keycode;
-use self::sdl2::keyboard::Keycode::*;
+use sdl2::keyboard::Keycode;
+use sdl2::keyboard::Keycode::*;
+use sdl2::event::EventPollIterator;
+use sdl2::event::Event;
+use sdl2::event::Event::*;
 
-pub struct Input;
+pub struct Input {
+    sdl_events: Vec<Event>,
+    pub keys_down: Vec<KeyboardKey>,
+    pub should_quit: bool
+}
 
 impl Input {
     pub fn new() -> Input {
         unimplemented!()
     }
+    pub fn event_push(&mut self, event: Event) {
+        self.sdl_events.push(event);
+    }
+    pub fn should_quit(&self) -> bool {
+        self.should_quit
+    }
+    pub fn key_is_down(&self, key: KeyboardKey) -> bool {
+        let found_key = self.keys_down.binary_search(&key);
+        match found_key {
+            Ok(key) => true,
+            _ => false
+        }
+    }
 }
+
+impl<'a> From<EventPollIterator<'a>> for Input {
+    fn from(poll : EventPollIterator) -> Input {
+        let mut input = Input {
+            sdl_events: vec![],
+            keys_down: vec![],
+            should_quit: false
+        };
+        for event in poll {
+            match event {
+                Quit {..} => {
+                    input.event_push(event);
+                    input.should_quit = true;
+                },
+                KeyDown { keycode: kc, ..} => {
+                    input.event_push(event);
+                    input.keys_down.push(kc.unwrap().into());
+                }
+                _ => {}
+            }
+        }
+        input
+    }
+}
+
 // Taken from the SDL2 Rust binding keyboard mapping
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone, Debug, Eq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum KeyboardKey {
     Backspace,
@@ -491,5 +535,11 @@ impl KeyboardKey {
             Eject => KeyboardKey::Eject,
             Sleep => KeyboardKey::Sleep,
         }
+    }
+}
+
+impl From<Keycode> for KeyboardKey {
+    fn from(kc: Keycode) -> KeyboardKey {
+        KeyboardKey::from_keycode(kc)
     }
 }
