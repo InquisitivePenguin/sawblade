@@ -56,6 +56,5 @@ impl GraphicalContext {
     }
     pub fn clear(&mut self) {
         self.wind.fill_blank();
-        self.wind.update();
     }
 }
