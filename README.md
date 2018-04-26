@@ -2,9 +2,11 @@
 
 Sawblade is a game engine written in Rust, with a focus on speed, safety, and modularity. It operates on a seperated systems principle, which means that ideally, changing any code in a class or system doesn't affect other systems unless you want it to.
 
-Sawblade has a hierarchal structure of `Application -> Controller -> System -> Whatever you want` that dictates who can modify what. Each layer exposes very little to the layer above them, keeping systems seperated.
+Sawblade has a hierarchal structure of `Application -> System`, where the `Application` is used to render things to the screen,
+play sounds, and modify inputs, and the `System` is used to modify a specific part of the state each tick. The game's state is
+the primary 'store' of the current game data.
 
-Sawblade does not restrict you to any design method. If you want, you can scrap Controllers altogether and directly return textures to the screen! But it provides built-in support for Lua scripting, ECS design, shaders, powerful AI control, and networking.
+Sawblade does not restrict you to any design method. If you want, you can directly return textures to the screen! But it provides built-in support for Lua scripting, ECS design, shaders, powerful AI control, and networking.
 
 ## Installing
 Clone this repository, then run `cargo build` to build the library.
@@ -21,19 +23,17 @@ will increase in size over time.
 
 Here is what we hope to implement on each release:
 
-`0.1`: windows, textures, file loading, entities, basic controllers, worlds, coordinate systems, basic macros
+`0.1`: Core components (Game, Application, System), ECS support, shape rendering, primitive texture rendering, window event handling
 
-`0.2`: basic physics, more macros, schedulers, better graphical manipulation
+`0.2`: Tile-maps, sounds, UI helper classes/framework
 
-`0.3`: graphical shaders, basic AI controllers, sound handling, tile-maps, basic UI helpers
+`0.3`: Graphical shaders, AI controllers
 
-`0.4`: extensive macro collections, particle effects, better UI support
+`0.4`: Better UI support, more macros
 
-`0.5`: Multi-threading support
+`0.5`: Networking, multi-threading
 
-`0.6`: Box2D integration with Physics components
-
-More to be announced.
+`0.6`: Box2D physics (maybe?)
 
 Versioning is as follows:
 
