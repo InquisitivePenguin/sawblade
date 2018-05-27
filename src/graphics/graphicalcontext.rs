@@ -6,26 +6,39 @@ use self::sdl2::Sdl;
 use graphics::window::Window;
 use std::collections::HashMap;
 use graphics::texture::*;
+use core::game::WindowSettings;
+use std::borrow::Borrow;
 
 pub struct GraphicalContext {
-    pub wind: Window,
-    texture_generator: TextureCreator<self::sdl2::video::WindowContext>,
+    pub window: Option<Window>,
+    texture_generator: Option<TextureCreator<self::sdl2::video::WindowContext> >,
     texture_storage: HashMap<String, render::Texture>
 }
 
 impl GraphicalContext {
-    pub fn new(context: &Sdl, window_title: String, resolution: (u32, u32)) -> GraphicalContext {
-        let mut n_wind = Window::new(context, resolution, window_title);
+    pub fn new(context: &Sdl, settings: Option<WindowSettings>, should_have_window: bool) -> GraphicalContext {
+        if !should_have_window {
+            return GraphicalContext {
+                window: None,
+                texture_generator: None,
+                texture_storage: HashMap::new()
+            };
+        }
+        let settings = settings.unwrap();
+        let mut n_wind = Window::new(context, settings.resolution, settings.title);
         let n_texture_pool = n_wind.get_canvas().texture_creator();
         GraphicalContext {
-            wind: n_wind,
-            texture_generator: n_texture_pool,
+            window: Some(n_wind),
+            texture_generator: Some(n_texture_pool),
             texture_storage: HashMap::new()
         }
     }
 
     pub fn load_texture_from_surface(&mut self, texture_name: String, mem_texture: Surface) {
-        let n_texture = self.texture_generator.create_texture_from_surface(mem_texture).unwrap();
+        if let None = self.texture_generator {
+            return;
+        }
+        let n_texture = self.texture_generator.as_ref().unwrap().create_texture_from_surface(mem_texture).unwrap();
         self.texture_storage.insert(texture_name, n_texture);
     }
 
@@ -38,23 +51,35 @@ impl GraphicalContext {
     }
 
     pub fn release(mut self) {
+        if let None = self.window {
+            return;
+        }
         unsafe {
             for texture in self.texture_storage {
                 texture.1.destroy();
             }
         }
-        self.wind.close();
+        self.window.unwrap().close();
     }
 
     pub fn draw_textures(&mut self, textures: Vec<Texture>) {
+        if let None = self.window {
+            return;
+        }
         for texture in textures {
-            self.wind.draw_texture(texture);
+            self.window.as_mut().unwrap().draw_texture(texture);
         }
     }
     pub fn update(&mut self) {
-        self.wind.update();
+        if let None = self.texture_generator {
+            return;
+        }
+        self.window.as_mut().unwrap().update();
     }
     pub fn clear(&mut self) {
-        self.wind.fill_blank();
+        if let None = self.texture_generator {
+            return;
+        }
+        self.window.as_mut().unwrap().fill_blank();
     }
 }

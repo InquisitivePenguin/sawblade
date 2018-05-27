@@ -4,4 +4,6 @@
 pub mod core;
 pub mod graphics;
 pub mod script;
+pub mod audio;
 extern crate sdl2;
+extern crate rodio;

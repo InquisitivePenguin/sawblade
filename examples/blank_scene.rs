@@ -9,7 +9,7 @@ struct GameApp;
 impl Application for GameApp {
     fn init(&mut self) {}
     fn game_loop(&mut self, gc: &mut GraphicalContext, input: Input) -> GameStatus {
-        gc.refresh();
+        gc.update();
         if input.should_quit() {
             GameStatus::Exit
         } else {
@@ -23,6 +23,10 @@ fn make_app() -> Box<Application> {
 }
 
 fn main() {
-    let game = Game::new("Blank Scene".to_string(), (500,500)).with_app(make_app).build();
+    let game = Game::new().with_app(make_app).with_window_settings(WindowSettings {
+        resolution: (1000, 1000),
+        title: "Blank Scene".to_string(),
+        fullscreen: false
+    }).build();
     game.start();
 }

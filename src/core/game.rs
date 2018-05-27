@@ -16,6 +16,12 @@ pub enum GameStatus {
     Exit
 }
 
+pub struct WindowSettings {
+    pub resolution: (u32, u32),
+    pub fullscreen: bool,
+    pub title: String
+}
+
 /// The helper class for generating a `Game`. Usually created by a call to `Game::new`.
 ///
 /// # Examples
@@ -26,9 +32,9 @@ pub enum GameStatus {
 /// let game_builder = Game::new("GameBuilder test".to_string(), (100,100));
 /// ```
 pub struct GameBuilder {
-    g_context_settings: Option<((u32,u32), String)>,
-    window_settings: (String, (u32,u32)),
-    app_fn: Option<fn() -> Box<Application>>
+    app_fn: Option<fn() -> Box<Application>>,
+    window_settings: Option<WindowSettings>,
+    has_window: bool
 }
 
 impl GameBuilder {
@@ -39,6 +45,21 @@ impl GameBuilder {
 
     pub fn with_app(mut self, app_fn: fn() -> Box<Application>) -> GameBuilder {
         self.app_fn = Some(app_fn);
+        self
+    }
+
+    /// This function sets the settings for the window (for the game).
+
+    pub fn with_window_settings(mut self, window_settings: WindowSettings) -> GameBuilder {
+        self.window_settings = Some(window_settings);
+        self
+    }
+
+    /// This function sets this application as having no graphical context. This is useful for game servers or applications
+    /// that have no window.
+
+    pub fn with_no_window(mut self) -> GameBuilder {
+        self.has_window = false;
         self
     }
 
@@ -69,11 +90,11 @@ impl GameBuilder {
 
     pub fn build(self) -> Game {
         let context = sdl2::init().unwrap();
-        let graphicalcontext = GraphicalContext::new(&context, self.window_settings.0, self.window_settings.1);
+        let graphicalcontext = GraphicalContext::new(&context, self.window_settings, self.has_window);
         let event_pump = (&context).event_pump().unwrap();
         Game {
             sdl_context: context,
-            app_layer: self.app_fn.expect("No world generation function was passed to the engine")(),
+            app_layer: self.app_fn.expect("No application generation function was passed to the engine")(),
             gcontext: graphicalcontext,
             event_pump,
             fps_reg: FPSRegulator::new(60),
@@ -104,11 +125,11 @@ impl Game {
     /// use sawblade::game::game::Game;
     /// let game_builder = Game::new("My game".to_string(), (1000,1000));
     /// ```
-    pub fn new(title:String, res: (u32,u32)) -> GameBuilder {
+    pub fn new() -> GameBuilder {
         GameBuilder {
-            window_settings: (title,res),
-            g_context_settings: None,
-            app_fn: None
+            window_settings: None,
+            app_fn: None,
+            has_window: true
         }
     }
     /// This function initiates the Application and begins the game loop.

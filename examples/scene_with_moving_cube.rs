@@ -1,5 +1,5 @@
 extern crate sawblade;
-use self::sawblade::core::game::Game;
+use self::sawblade::core::game::*;
 use self::sawblade::core::application::Application;
 use self::sawblade::core::input::KeyboardKey;
 use self::sawblade::core::input::Input;
@@ -76,6 +76,34 @@ impl Application for GameApplication {
 impl System for CubeMovementSystem {
     type GameState = GameState;
     fn update(&mut self, input: &Input, state: &mut GameState) {
+        if input.key_is_down(KeyboardKey::Up) {
+            state.cube.movement_amount_y += -1 as f32;
+        }
+        if input.key_is_down(KeyboardKey::Down) {
+            state.cube.movement_amount_y += 1 as f32;
+        }
+        if input.key_is_down(KeyboardKey::Left) {
+            state.cube.movement_amount_x += -1 as f32;
+        }
+        if input.key_is_down(KeyboardKey::Right) {
+            state.cube.movement_amount_x += 1 as f32;
+        }
+
+        state.cube.movement_amount_x *= 0.99;
+        state.cube.movement_amount_y *= 0.99;
+
+        if state.cube.movement_amount_x > 0.0 {
+            state.cube.coordinates.0 += state.cube.movement_amount_x as u32;
+        }
+        if state.cube.movement_amount_x < 0.0 && state.cube.coordinates.0 as f32 + state.cube.movement_amount_x  > 0.0 {
+            state.cube.coordinates.0 -= -state.cube.movement_amount_x as u32;
+        }
+        if state.cube.movement_amount_y > 0.0 {
+            state.cube.coordinates.1 += state.cube.movement_amount_y as u32;
+        }
+        if state.cube.movement_amount_y < 0.0  && state.cube.coordinates.1 as f32 + state.cube.movement_amount_y  > 0.0 {
+            state.cube.coordinates.1 -= -state.cube.movement_amount_y as u32;
+        }
     }
 }
 
@@ -96,5 +124,9 @@ impl Cube {
 }
 
 fn main() {
-    Game::new("".to_string(), (1000,1000)).with_app(make_app).build().start();
+    Game::new().with_app(make_app).with_window_settings(WindowSettings {
+        resolution: (1000, 1000),
+        fullscreen: false,
+        title: "Moving Cube Example".to_string()
+    }).build().start();
 }
