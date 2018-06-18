@@ -10,7 +10,7 @@ use core::game::WindowSettings;
 use std::borrow::Borrow;
 
 pub struct GraphicalContext {
-    pub window: Option<Window>,
+    window: Option<Window>,
     texture_generator: Option<TextureCreator<self::sdl2::video::WindowContext> >,
     texture_storage: HashMap<String, render::Texture>
 }

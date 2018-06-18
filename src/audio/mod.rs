@@ -18,6 +18,10 @@ enum ThreadStatus {
 /// An unsigned integer between 0 and 100 that specifies volume to play an audio track at.
 pub type Volume = u8;
 
+fn volume_bounds_check(vol: Volume) -> bool {
+    vol <= 100
+}
+
 impl AudioContext {
     pub fn new() -> AudioContext {
         AudioContext {
@@ -37,7 +41,7 @@ impl AudioContext {
     pub fn play_once_thread_is_available(&mut self, sound_name: &str, thread: u64) -> Result<(), ()> {
         unimplemented!()
     }
-    /// Unlinks a certain sound track identifier and unloads the sound from memory.
+    /// Unlinks a certain sound track identifier and unloads the sound from memory. May cause unexpected results if a thread is using the track.
     pub fn unload(&mut self, name: &str) -> Result<(), ()> {
         unimplemented!()
     }

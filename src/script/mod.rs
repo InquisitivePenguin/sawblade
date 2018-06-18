@@ -4,7 +4,6 @@ use std;
 use std::fs::File;
 use std::io::Read;
 use core::system::System;
-use core::gameobject::GameObject;
 
 /// This is a enum that represents a type implemented in Lua. This is primarily used in the ScriptableEntity::inject() function.
 #[derive(Clone, Debug)]
@@ -30,7 +29,7 @@ impl LuaType {
 /// This is a link between an Entity and it's Lua class inside the scripting machine.
 /// When the scripting machine runs events and then applies the components for the entity,
 /// the values are passed back in the form of
-pub trait ScriptableEntity: GameObject {
+pub trait ScriptableEntity {
     fn get_entity_script(&self) -> Script;
 
     fn inject(&self) -> Vec<(String, LuaType)>;

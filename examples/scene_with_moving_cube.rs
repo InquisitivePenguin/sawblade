@@ -7,6 +7,7 @@ use self::sawblade::graphics::graphicalcontext::GraphicalContext;
 use self::sawblade::core::game::GameStatus;
 use self::sawblade::core::system::System;
 use self::sawblade::graphics::texture::*;
+use self::sawblade::core::math::Vector;
 
 fn make_app() -> Box<Application> {
     Box::new(
@@ -56,12 +57,12 @@ impl Application for GameApplication {
                 components: vec![
                     TextureComponent::BasicShape(
                         Shape::Rectangle(
-                            (50,50).into()
+                            Vector::from_generic((50 as u32,50 as u32))
                         ),
                         (255,255,255)
                     )
                 ],
-                relative_origin: self.state.cube.coordinates.into(),
+                relative_origin: Vector::from_generic(self.state.cube.coordinates),
             }
         ]);
         graphical_context.update();
